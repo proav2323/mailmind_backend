@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { BadRequestException } from '@nestjs/common';
-import { generateId } from 'src/utils/generateId';
+import { generateId } from '../../utils/generateId';
 import { Response } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 
