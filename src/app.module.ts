@@ -6,10 +6,11 @@ import { EmailsController } from './controllers/emails/emails.controller';
 import { AuthService } from './services/auth/auth.service';
 import { EmailsService } from './services/emails/emails.service';
 import { JwtService } from '@nestjs/jwt';
+import { PrismaService } from './services/prisma/prisma.service';
 
 @Module({
   imports: [],
   controllers: [AppController, AuthController, EmailsController],
-  providers: [AppService, AuthService, EmailsService, JwtService],
+  providers: [AppService, AuthService, EmailsService, JwtService, PrismaService],
 })
 export class AppModule {}

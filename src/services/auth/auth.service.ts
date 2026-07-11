@@ -1,13 +1,17 @@
+import 'dotenv/config';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { BadRequestException } from '@nestjs/common';
-import { prisma } from 'src/prisma';
 import { generateId } from 'src/utils/generateId';
 import { Response } from 'express';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private JWT: JwtService) {}
+  constructor(
+    private JWT: JwtService,
+    private prisma: PrismaService,
+  ) {}
   async auth(req: Request) {
     const token = (req as Request & { cookies?: Record<string, string> })
       .cookies?.token;
@@ -20,7 +24,7 @@ export class AuthService {
       token,
     );
 
-    const user = await prisma.uSER.findUnique({
+    const user = await this.prisma.uSER.findUnique({
       where: { email: decoded.email },
     });
 
@@ -49,9 +53,11 @@ export class AuthService {
     const photoUrl: string = body['photoUrl'];
     const oAuthProvider: string = body['oAuthProvider'];
     try {
-      const user = await prisma.uSER.findUnique({ where: { email: email } });
+      const user = await this.prisma.uSER.findUnique({
+        where: { email: email },
+      });
       if (!user) {
-        await prisma.uSER.create({
+        await this.prisma.uSER.create({
           data: {
             email: email,
             name: name,
@@ -64,7 +70,7 @@ export class AuthService {
 
       const token = this.JWT.sign(
         { email: email, accessToken: accessToken },
-        { expiresIn: '30m' },
+        { expiresIn: '30m', secret: process.env.JWT_SECRET },
       );
 
       res.cookie('token', token);
