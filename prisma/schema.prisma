@@ -10,5 +10,42 @@ datasource db {
 model USER {
   id String @id
   email String @unique
+  name String
+  photoUrl String
+  college String?
+  branch String?
+  year Int?
+  oAuthProvider String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  emails EMAILS[]
+  notifications notifications[]
+}
 
+model EMAILS {
+id String @id
+userId String
+gmailId String
+subject String 
+sender  String
+summary String
+body String
+receivedAt DateTime
+priority String
+category String
+deadline DateTime
+isRead Boolean
+
+User USER @relation(fields: [userId], references: [id])
+}
+
+model notifications {
+  id String @id
+  userId String
+  title String
+  body String
+  scheduledTime DateTime
+  isSent Boolean
+
+  User USER @relation(fields: [userId], references: [id])
 }
