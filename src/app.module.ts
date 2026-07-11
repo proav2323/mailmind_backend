@@ -5,10 +5,11 @@ import { AuthController } from './controllers/auth/auth.controller';
 import { EmailsController } from './controllers/emails/emails.controller';
 import { AuthService } from './services/auth/auth.service';
 import { EmailsService } from './services/emails/emails.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [],
   controllers: [AppController, AuthController, EmailsController],
-  providers: [AppService, AuthService, EmailsService],
+  providers: [AppService, AuthService, EmailsService, JwtService],
 })
 export class AppModule {}

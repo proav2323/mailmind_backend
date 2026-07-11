@@ -48,28 +48,31 @@ export class AuthService {
     const name: string = body['name'];
     const photoUrl: string = body['photoUrl'];
     const oAuthProvider: string = body['oAuthProvider'];
+    try {
+      const user = await prisma.uSER.findUnique({ where: { email: email } });
+      if (!user) {
+        await prisma.uSER.create({
+          data: {
+            email: email,
+            name: name,
+            photoUrl: photoUrl,
+            oAuthProvider: oAuthProvider,
+            id: generateId(8),
+          },
+        });
+      }
 
-    const user = await prisma.uSER.findUnique({ where: { email: email } });
+      const token = this.JWT.sign(
+        { email: email, accessToken: accessToken },
+        { expiresIn: '30m' },
+      );
 
-    if (!user) {
-      await prisma.uSER.create({
-        data: {
-          email: email,
-          name: name,
-          photoUrl: photoUrl,
-          oAuthProvider: oAuthProvider,
-          id: generateId(8),
-        },
-      });
+      res.cookie('token', token);
+
+      return token;
+    } catch (err: any) {
+      console.log(err);
+      throw new BadRequestException('somethign went wrong');
     }
-
-    const token = this.JWT.sign(
-      { email: email, accessToken: accessToken },
-      { expiresIn: '30m' },
-    );
-
-    res.cookie('token', token);
-
-    return token;
   }
 }

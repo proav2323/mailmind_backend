@@ -7,7 +7,13 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();
   app.use(cookieParser());
-  await prisma.$connect();
+  try {
+    await prisma.$connect();
+    console.log('connected');
+  } catch (err) {
+    console.log(err);
+  }
+
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
