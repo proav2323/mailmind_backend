@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { BadRequestException } from '@nestjs/common';
 import { prisma } from 'src/prisma';
 import { generateId } from 'src/utils/generateId';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -38,6 +39,7 @@ export class AuthService {
       photoUrl: string;
       oAuthProvider: string;
     },
+    res: Response,
   ) {
     const accessToken = (req as Request & { cookies?: Record<string, string> })
       .cookies?.accessToken;
@@ -66,7 +68,7 @@ export class AuthService {
       { expiresIn: '30m' },
     );
 
-    req.cookie('token', token);
+    res.cookie('token', token);
 
     return token;
   }
