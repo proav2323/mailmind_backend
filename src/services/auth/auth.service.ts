@@ -76,7 +76,7 @@ export class AuthService {
       return token;
     } catch (err: any) {
       console.log(err);
-      throw new BadRequestException('somethign went wrong');
+      throw new BadRequestException('something went wrong');
     }
   }
 }
