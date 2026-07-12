@@ -53,6 +53,7 @@ export class AuthService {
     const name: string = body['name'];
     const photoUrl: string = body['photoUrl'];
     const oAuthProvider: string = body['oAuthProvider'];
+    console.log(email, name, photoUrl, oAuthProvider);
     try {
       const user = await this.prisma.uSER.findUnique({
         where: { email: email },
