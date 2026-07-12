@@ -23,6 +23,7 @@ export class AuthService {
 
     const decoded = this.JWT.verify<{ email: string; accessToken: string }>(
       token,
+      { secret: process.env.JWT_SECRET },
     );
 
     const user = await this.prisma.uSER.findUnique({
