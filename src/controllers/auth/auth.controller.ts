@@ -16,12 +16,7 @@ export class AuthController {
   async login(
     @Req() req: Request,
     @Body()
-    body: {
-      email: string;
-      name: string;
-      photoUrl: string;
-      oAuthProvider: string;
-    },
+    body: any,
     @Res({ passthrough: true }) response: res.Response,
   ): Promise<string | undefined> {
     return await this.authService.login(req, body, response);

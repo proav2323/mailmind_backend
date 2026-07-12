@@ -36,23 +36,18 @@ export class AuthService {
     return user;
   }
 
-  async login(
-    req: Request,
-    body: {
-      email: string;
-      name: string;
-      photoUrl: string;
-      oAuthProvider: string;
-    },
-    res: Response,
-  ) {
+  async login(req: Request, body: any, res: Response) {
     const accessToken = (req as Request & { cookies?: Record<string, string> })
       .cookies?.accessToken;
 
-    const email: string = body['email'];
-    const name: string = body['name'];
-    const photoUrl: string = body['photoUrl'];
-    const oAuthProvider: string = body['oAuthProvider'];
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const email: string = body['email'] as string;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const name: string = body['name'] as string;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const photoUrl: string = body['photoUrl'] as string;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const oAuthProvider: string = body['oAuthProvider'] as string;
     console.log(email, name, photoUrl, oAuthProvider);
     try {
       const user = await this.prisma.uSER.findUnique({
