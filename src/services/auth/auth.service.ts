@@ -34,6 +34,8 @@ export class AuthService {
       throw new BadRequestException('user not found');
     }
 
+    console.log(user);
+
     return user;
   }
 
