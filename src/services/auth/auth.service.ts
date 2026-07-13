@@ -15,7 +15,6 @@ export class AuthService {
   async auth(req: Request) {
     const token = (req as Request & { cookies?: Record<string, string> })
       .cookies?.token;
-    console.log(token);
     if (!token) {
       throw new BadRequestException('token not valid');
     }
@@ -41,14 +40,12 @@ export class AuthService {
       throw new BadRequestException('user not found');
     }
 
-    console.log(user);
-
     return user;
   }
 
   async login(req: Request, body: any, res: Response) {
-    const accessToken = (req as Request & { cookies?: Record<string, string> })
-      .cookies?.accessToken;
+    // const accessToken = (req as Request & { cookies?: Record<string, string> })
+    //   .cookies?.accessToken;
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const email: string = body['email'] as string;
@@ -58,6 +55,8 @@ export class AuthService {
     const photoUrl: string = body['photoUrl'] as string;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const oAuthProvider: string = body['oAuthProvider'] as string;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const accessToken: string = body['accessToken'] as string;
     try {
       const user = await this.prisma.uSER.findUnique({
         where: { email: email },
