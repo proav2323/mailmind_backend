@@ -15,6 +15,7 @@ export class AuthService {
   async auth(req: Request) {
     const token = (req as Request & { cookies?: Record<string, string> })
       .cookies?.token;
+    console.log(token);
     if (!token) {
       throw new BadRequestException('token not valid');
     }
