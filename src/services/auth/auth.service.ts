@@ -15,7 +15,6 @@ export class AuthService {
   async auth(req: Request) {
     const token = (req as Request & { cookies?: Record<string, string> })
       .cookies?.token;
-    console.log(token);
     if (!token) {
       throw new BadRequestException('token not valid');
     }
@@ -73,7 +72,6 @@ export class AuthService {
           },
         });
       }
-      console.log(accessToken);
 
       const token = this.JWT.sign(
         { email: email, accessToken: accessToken },
