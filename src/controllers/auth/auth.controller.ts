@@ -19,7 +19,6 @@ export class AuthController {
     body: any,
     @Res({ passthrough: true }) response: res.Response,
   ): Promise<string | undefined> {
-    console.log(body);
     return await this.authService.login(req, body, response);
   }
 }

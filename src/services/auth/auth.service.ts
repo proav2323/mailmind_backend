@@ -15,11 +15,10 @@ export class AuthService {
   async auth(req: Request) {
     const token = (req as Request & { cookies?: Record<string, string> })
       .cookies?.token;
-
+    console.log(token);
     if (!token) {
       throw new BadRequestException('token not valid');
     }
-    console.log(token);
 
     const decoded = this.JWT.verify<{ email: string; accessToken: string }>(
       token,
@@ -28,6 +27,14 @@ export class AuthService {
 
     const user = await this.prisma.uSER.findUnique({
       where: { email: decoded.email },
+      include: {
+        emails: {
+          include: { User: {} },
+        },
+        notifications: {
+          include: { User: {} },
+        },
+      },
     });
 
     if (!user) {
@@ -51,7 +58,6 @@ export class AuthService {
     const photoUrl: string = body['photoUrl'] as string;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const oAuthProvider: string = body['oAuthProvider'] as string;
-    console.log(email, name, photoUrl, oAuthProvider);
     try {
       const user = await this.prisma.uSER.findUnique({
         where: { email: email },
