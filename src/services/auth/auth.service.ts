@@ -63,7 +63,7 @@ export class AuthService {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const scopes: string[] = body['scopes'] as string[];
 
-    console.log(refreshToken, scopes);
+    console.log(refreshToken, scopes, accessToken);
     try {
       const user = await this.prisma.uSER.findUnique({
         where: { email: email },
