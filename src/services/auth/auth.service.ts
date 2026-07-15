@@ -59,7 +59,7 @@ export class AuthService {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const accessToken: string = body['accessToken'] as string;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const refreshToken: string = body['accessToken'] as string;
+    const refreshToken: string = body['refreshToken'] as string;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const scopes: string[] = body['scopes'] as string[];
 
