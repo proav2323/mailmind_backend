@@ -60,6 +60,8 @@ export class AuthService {
     const accessToken: string = body['accessToken'] as string;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const refreshToken: string = body['accessToken'] as string;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const scopes: string[] = body['scopes'] as string[];
     try {
       const user = await this.prisma.uSER.findUnique({
         where: { email: email },
@@ -77,7 +79,12 @@ export class AuthService {
       }
 
       const token = this.JWT.sign(
-        { email: email, accessToken: accessToken, refreshToken: refreshToken },
+        {
+          email: email,
+          accessToken: accessToken,
+          refreshToken: refreshToken,
+          scopes: scopes,
+        },
         { expiresIn: '30m', secret: process.env.JWT_SECRET },
       );
 
