@@ -1,6 +1,5 @@
 import 'dotenv/config';
 import { Module, Global } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Redis } from '@upstash/redis';
 export const UPSTASH_REDIS_CLIENT = 'UPSTASH_REDIS_CLIENT';
 @Global()
@@ -14,7 +13,6 @@ export const UPSTASH_REDIS_CLIENT = 'UPSTASH_REDIS_CLIENT';
           token: process.env.UPSTASH_REDIS_REST_TOKEN,
         });
       },
-      inject: [ConfigService],
     },
   ],
   exports: [UPSTASH_REDIS_CLIENT],
