@@ -71,6 +71,8 @@ export class AuthService {
       const idToken: string = data['id_token'] as string;
       const scope: string = data['scope'] as string;
       const expressIn: number = data['expires_in'] as number;
+      console.log(serverAuthCode);
+      console.log(data);
       console.log(accessToken + ' ' + refreshToken + ' ' + accessTokenMobile);
 
       await this.redis.save(accessToken, `${email}-accessToken`, expressIn);
