@@ -72,9 +72,13 @@ export class AuthService {
       const scope: string = data['scope'] as string;
       const expressIn: number = data['expires_in'] as number;
 
-      await this.redis.save(accessToken, 'accessToken', expressIn);
-      await this.redis.save(accessTokenMobile, 'accessTokenMobile', expressIn);
-      await this.redis.save(idToken, 'idToken', expressIn);
+      await this.redis.save(accessToken, `${email}-accessToken`, expressIn);
+      await this.redis.save(
+        accessTokenMobile,
+        `${email}-accessTokenMobile`,
+        expressIn,
+      );
+      await this.redis.save(idToken, `${email}-idToken`, expressIn);
 
       const user = await this.prisma.uSER.findUnique({
         where: { email: email },
