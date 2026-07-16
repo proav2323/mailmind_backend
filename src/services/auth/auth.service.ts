@@ -79,18 +79,6 @@ export class AuthService {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const expressIn: number = data['expires_in'] as number;
 
-      console.log(serverAuthCode);
-      console.log(data);
-      console.log(
-        accessToken +
-          ' ' +
-          refreshToken +
-          ' ' +
-          accessTokenMobile +
-          ' ' +
-          idToken,
-      );
-
       await this.redis.save(accessToken, `${email}-accessToken`, expressIn);
       await this.redis.save(
         accessTokenMobile,
