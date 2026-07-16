@@ -77,6 +77,12 @@ export class AuthService {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       });
 
+      console.log(googleRes);
+
+      if (googleRes.ok === false || googleRes.status === 500) {
+        throw new BadRequestException(`somehting went wrong with google api`);
+      }
+
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const data: any = await googleRes.json();
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
