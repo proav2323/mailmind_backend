@@ -9,6 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from './services/prisma/prisma.service';
 import { RedisService } from './services/redis/redis.service';
 import { RedisModule } from './redis/redis.module';
+import { EcryptionService } from './services/ecryption/ecryption.service';
 
 @Module({
   imports: [RedisModule],
@@ -20,6 +21,7 @@ import { RedisModule } from './redis/redis.module';
     JwtService,
     PrismaService,
     RedisService,
+    EcryptionService,
   ],
 })
 export class AppModule {}

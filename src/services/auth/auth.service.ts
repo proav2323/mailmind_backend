@@ -6,6 +6,7 @@ import { generateId } from '../../utils/generateId';
 import { Response } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
+import { EcryptionService } from '../ecryption/ecryption.service';
 
 @Injectable()
 export class AuthService {
@@ -13,6 +14,7 @@ export class AuthService {
     private JWT: JwtService,
     private prisma: PrismaService,
     private redis: RedisService,
+    private encrpyt: EcryptionService,
   ) {}
   async auth(req: Request) {
     const token = (req as Request & { cookies?: Record<string, string> })
@@ -79,13 +81,17 @@ export class AuthService {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const expressIn: number = data['expires_in'] as number;
 
-      await this.redis.save(accessToken, `${email}-accessToken`, expressIn);
+      const accessTokenHash = this.encrpyt.encrypt(accessToken);
+      const accessTokenMobileHash = this.encrpyt.encrypt(accessTokenMobile);
+      const idTokenHash = this.encrpyt.encrypt(idToken);
+
+      await this.redis.save(accessTokenHash, `${email}-accessToken`, expressIn);
       await this.redis.save(
-        accessTokenMobile,
+        accessTokenMobileHash,
         `${email}-accessTokenMobile`,
         expressIn,
       );
-      await this.redis.save(idToken, `${email}-idToken`, expressIn);
+      await this.redis.save(idTokenHash, `${email}-idToken`, expressIn);
 
       const user = await this.prisma.uSER.findUnique({
         where: { email: email },
