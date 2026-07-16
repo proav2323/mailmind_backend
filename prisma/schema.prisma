@@ -17,6 +17,10 @@ model USER {
   branch        String?
   year          Int?
   oAuthProvider String
+  expiresIn Int
+  accessToken String
+  accessTokenMobile String
+  idToken String
   created_at    DateTime        @default(now())
   updated_at    DateTime        @updatedAt
   emails        EMAILS[]
