@@ -63,6 +63,9 @@ export class AuthService {
     try {
       const googleRes = await fetch('https://googleapis.com', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
         body: new URLSearchParams({
           code: serverAuthCode,
           client_id: process.env.GOOGLE_CLIENT_ID
@@ -74,7 +77,6 @@ export class AuthService {
           grant_type: 'authorization_code',
           redirect_uri: '',
         }).toString(),
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       });
 
       console.log(googleRes);
