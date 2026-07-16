@@ -45,9 +45,6 @@ export class AuthService {
   }
 
   async login(req: Request, body: any, res: Response) {
-    // const accessToken = (req as Request & { cookies?: Record<string, string> })
-    //   .cookies?.accessToken;
-
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const email: string = body['email'] as string;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -59,12 +56,34 @@ export class AuthService {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const accessToken: string = body['accessToken'] as string;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const refreshToken: string = body['refreshToken'] as string;
+    const serverAuthCode: string = body['serverAuthCode'] as string;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const scopes: string[] = body['scopes'] as string[];
 
-    console.log(refreshToken, scopes, accessToken);
     try {
+      const googleRes = await fetch('https://googleapis.com', {
+        method: 'POST',
+        body: new URLSearchParams({
+          code: serverAuthCode,
+          client_id: process.env.GOOGLE_CLIENT_ID
+            ? process.env.GOOGLE_CLIENT_ID
+            : '',
+          client_secret: process.env.GOOGLE_CLIENT_SECRET
+            ? process.env.GOOGLE_CLIENT_SECRET
+            : '',
+          grant_type: 'authorization_code',
+          redirect_uri: '',
+        }),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const data: any = await googleRes.json();
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const refreshToken: string = data['refreshToken'] as string;
+
+      console.log(refreshToken, scopes, accessToken);
+
       const user = await this.prisma.uSER.findUnique({
         where: { email: email },
       });
