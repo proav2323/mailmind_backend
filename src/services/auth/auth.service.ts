@@ -61,7 +61,7 @@ export class AuthService {
     const scopes: string[] = body['scopes'] as string[];
 
     try {
-      const googleRes = await fetch('https://googleapis.com', {
+      const googleRes = await fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
