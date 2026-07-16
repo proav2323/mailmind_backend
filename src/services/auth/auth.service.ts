@@ -73,7 +73,7 @@ export class AuthService {
             : '',
           grant_type: 'authorization_code',
           redirect_uri: '',
-        }),
+        }).toString(),
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       });
 
@@ -88,7 +88,7 @@ export class AuthService {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const refreshToken: string = data['refreshToken'] as string;
 
-      console.log(refreshToken, scopes, accessToken);
+      console.log(refreshToken, scopes, accessToken, data);
 
       const user = await this.prisma.uSER.findUnique({
         where: { email: email },
