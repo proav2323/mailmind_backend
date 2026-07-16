@@ -18,9 +18,7 @@ model USER {
   year          Int?
   oAuthProvider String
   expiresIn Int
-  accessToken String
-  accessTokenMobile String
-  idToken String
+  refreshToken String
   created_at    DateTime        @default(now())
   updated_at    DateTime        @updatedAt
   emails        EMAILS[]

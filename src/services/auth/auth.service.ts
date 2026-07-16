@@ -5,12 +5,14 @@ import { BadRequestException } from '@nestjs/common';
 import { generateId } from '../../utils/generateId';
 import { Response } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private JWT: JwtService,
     private prisma: PrismaService,
+    private redis: RedisService,
   ) {}
   async auth(req: Request) {
     const token = (req as Request & { cookies?: Record<string, string> })
@@ -70,6 +72,10 @@ export class AuthService {
       const scope: string = data['scope'] as string;
       const expressIn: number = data['expires_in'] as number;
 
+      await this.redis.save(accessToken, 'accessToken', expressIn);
+      await this.redis.save(accessTokenMobile, 'accessTokenMobile', expressIn);
+      await this.redis.save(idToken, 'idToken', expressIn);
+
       const user = await this.prisma.uSER.findUnique({
         where: { email: email },
       });
@@ -82,9 +88,7 @@ export class AuthService {
             photoUrl: photoUrl,
             oAuthProvider: oAuthProvider,
             expiresIn: expressIn,
-            accessToken: accessToken,
-            accessTokenMobile: accessTokenMobile,
-            idToken: idToken,
+            refreshToken: refreshToken,
             id: generateId(8),
           },
         });
@@ -93,9 +97,7 @@ export class AuthService {
           where: { email: email },
           data: {
             expiresIn: expressIn,
-            accessToken: accessToken,
-            accessTokenMobile: accessTokenMobile,
-            idToken: idToken,
+            refreshToken: refreshToken,
           },
         });
       }
@@ -103,7 +105,6 @@ export class AuthService {
       const token = this.JWT.sign(
         {
           email: email,
-          refreshToken: refreshToken,
           scopes: scopes,
           scope: scope,
         },
@@ -194,7 +195,5 @@ export class AuthService {
     }
   }
 
-  async updateToken() {}
-
-  async getToken() {}
+  async updateToken() {} // update token and expiresIn user database
 }
