@@ -64,12 +64,19 @@ export class AuthService {
 
     try {
       const googleRes = await this.getNewAccessToken(serverAuthCode, true);
-      const data = googleRes.json();
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const data: any = await googleRes.json();
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const refreshToken: string = data['refresh_token'] as string;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const accessToken: string = data['access_token'] as string;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const idToken: string = data['id_token'] as string;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const scope: string = data['scope'] as string;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const expressIn: number = data['expires_in'] as number;
 
       console.log(serverAuthCode);
