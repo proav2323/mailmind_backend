@@ -17,4 +17,20 @@ export class RedisService {
   async get(key: string) {
     await this.redis.get(key);
   }
+
+  async checkIfItemExpired(
+    key: string,
+  ): Promise<{ expired: boolean; secondsLeft: number }> {
+    const remainingTime = await this.redis.ttl(key);
+
+    if (remainingTime === -2) {
+      return { expired: true, secondsLeft: 0 };
+    }
+
+    if (remainingTime === -1) {
+      return { expired: false, secondsLeft: 0 };
+    }
+
+    return { expired: false, secondsLeft: remainingTime };
+  }
 }

@@ -17,7 +17,6 @@ model USER {
   branch        String?
   year          Int?
   oAuthProvider String
-  expiresIn Int
   refreshToken String
   created_at    DateTime        @default(now())
   updated_at    DateTime        @updatedAt

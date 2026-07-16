@@ -81,17 +81,13 @@ export class AuthService {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const expressIn: number = data['expires_in'] as number;
 
-      const accessTokenHash = this.encrpyt.encrypt(accessToken);
-      const accessTokenMobileHash = this.encrpyt.encrypt(accessTokenMobile);
-      const idTokenHash = this.encrpyt.encrypt(idToken);
-
-      await this.redis.save(accessTokenHash, `${email}-accessToken`, expressIn);
-      await this.redis.save(
-        accessTokenMobileHash,
-        `${email}-accessTokenMobile`,
+      await this.updateToken(
+        accessToken,
+        accessTokenMobile,
+        idToken,
         expressIn,
+        email,
       );
-      await this.redis.save(idTokenHash, `${email}-idToken`, expressIn);
 
       const user = await this.prisma.uSER.findUnique({
         where: { email: email },
@@ -104,7 +100,6 @@ export class AuthService {
             name: name,
             photoUrl: photoUrl,
             oAuthProvider: oAuthProvider,
-            expiresIn: expressIn,
             refreshToken: refreshToken,
             id: generateId(8),
           },
@@ -113,7 +108,6 @@ export class AuthService {
         await this.prisma.uSER.update({
           where: { email: email },
           data: {
-            expiresIn: expressIn,
             refreshToken: refreshToken,
           },
         });
@@ -135,23 +129,6 @@ export class AuthService {
       console.log(err);
       throw new BadRequestException('something went wrong');
     }
-  }
-
-  async checkIfNeedRefresh(email: string): Promise<boolean> {
-    const user = await this.prisma.uSER.findUnique({ where: { email: email } });
-    if (!user) {
-      throw new BadRequestException('user not found');
-    }
-
-    const currentTime = Math.floor(Date.now() / 1000); // Unix timestamp in seconds
-    const bufferTime = 420; // 7-minute safety window to prevent late failures
-    let needRefresh = false;
-
-    if (currentTime >= user.expiresIn - bufferTime) {
-      needRefresh = true;
-    }
-
-    return needRefresh;
   }
 
   async getNewAccessToken(
@@ -212,5 +189,23 @@ export class AuthService {
     }
   }
 
-  async updateToken() {} // update token and expiresIn user database
+  async updateToken(
+    accessToken: string,
+    accessTokenMobile: string,
+    idToken: string,
+    expressIn: number,
+    email: string,
+  ) {
+    const accessTokenHash = this.encrpyt.encrypt(accessToken);
+    const accessTokenMobileHash = this.encrpyt.encrypt(accessTokenMobile);
+    const idTokenHash = this.encrpyt.encrypt(idToken);
+
+    await this.redis.save(accessTokenHash, `${email}-accessToken`, expressIn);
+    await this.redis.save(
+      accessTokenMobileHash,
+      `${email}-accessTokenMobile`,
+      expressIn,
+    );
+    await this.redis.save(idTokenHash, `${email}-idToken`, expressIn);
+  } // update token on redis
 }
