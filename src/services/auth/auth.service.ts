@@ -140,10 +140,18 @@ export class AuthService {
       if (!user) {
         await this.prisma.uSER.create({
           data: {
-            email: email === 'web' ? newEmail : email,
-            name: name === 'web' ? (newName ? newName : 'no name') : name,
+            email:
+              name === 'web' || email === 'web' || photoUrl === 'web'
+                ? newEmail
+                : email,
+            name:
+              name === 'web' || email === 'web' || photoUrl === 'web'
+                ? newName
+                  ? newName
+                  : 'no name'
+                : name,
             photoUrl:
-              photoUrl === 'web'
+              name === 'web' || email === 'web' || photoUrl === 'web'
                 ? newPhotoUrl
                   ? newPhotoUrl
                   : 'no photo'
