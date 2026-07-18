@@ -138,7 +138,15 @@ export class AuthService {
       });
 
       if (!user) {
-        console.log(newEmail, newName, newPhotoUrl, name, email, photoUrl);
+        console.log(
+          newEmail,
+          newName,
+          newPhotoUrl,
+          name,
+          email,
+          photoUrl,
+          oAuthProvider,
+        );
         await this.prisma.uSER.create({
           data: {
             email:
@@ -148,14 +156,10 @@ export class AuthService {
             name:
               name === 'web' || email === 'web' || photoUrl === 'web'
                 ? newName
-                  ? newName
-                  : 'no name'
                 : name,
             photoUrl:
               name === 'web' || email === 'web' || photoUrl === 'web'
                 ? newPhotoUrl
-                  ? newPhotoUrl
-                  : 'no photo'
                 : photoUrl,
             oAuthProvider: oAuthProvider,
             refreshToken: refreshToken ? refreshToken : 'no refresh token',
@@ -164,7 +168,7 @@ export class AuthService {
         });
       } else {
         await this.prisma.uSER.update({
-          where: { email: email },
+          where: { email: email === 'web' ? newEmail : email },
           data: {
             email:
               name === 'web' || email === 'web' || photoUrl === 'web'
