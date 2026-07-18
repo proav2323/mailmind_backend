@@ -63,9 +63,16 @@ export class AuthService {
     const scopes: string[] = body['scopes'] as string[];
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const accessTokenMobile: string = body['accessToken'] as string;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const prod: boolean | undefined = body['prod'] as boolean | undefined;
 
     try {
-      const googleRes = await this.getNewAccessToken(serverAuthCode, true);
+      const googleRes = await this.getNewAccessToken(
+        serverAuthCode,
+        true,
+        email === 'web' ? true : false,
+        prod,
+      );
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const data: any = await googleRes.json();
@@ -166,6 +173,8 @@ export class AuthService {
   async getNewAccessToken(
     refreshToken: string,
     isServerCode: boolean,
+    isWeb?: boolean,
+    prod?: boolean,
   ): Promise<globalThis.Response> {
     if (isServerCode) {
       const googleRes = await fetch('https://oauth2.googleapis.com/token', {
@@ -182,7 +191,11 @@ export class AuthService {
             ? process.env.GOOGLE_CLIENT_SECRET
             : '',
           grant_type: 'authorization_code',
-          redirect_uri: '',
+          redirect_uri: isWeb
+            ? prod
+              ? 'http://localhost:3000/api/auth/google/api/auth/google'
+              : 'http://localhost:3000/api/auth/google'
+            : '',
         }).toString(),
       });
 
@@ -214,7 +227,7 @@ export class AuthService {
       });
 
       if (googleRes.ok === false || googleRes.status === 500) {
-                const error = await googleRes.text();
+        const error = await googleRes.text();
         console.log(error);
         throw new BadRequestException(
           `somehting went wrong with google api to refresh token`,
