@@ -166,9 +166,18 @@ export class AuthService {
         await this.prisma.uSER.update({
           where: { email: email },
           data: {
-            email: email === 'web' ? newEmail : email,
-            name: name === 'web' ? newName : name,
-            photoUrl: photoUrl === 'web' ? newPhotoUrl : photoUrl,
+            email:
+              name === 'web' || email === 'web' || photoUrl === 'web'
+                ? newEmail
+                : email,
+            name:
+              name === 'web' || email === 'web' || photoUrl === 'web'
+                ? newName
+                : name,
+            photoUrl:
+              name === 'web' || email === 'web' || photoUrl === 'web'
+                ? newPhotoUrl
+                : photoUrl,
             oAuthProvider: oAuthProvider,
             refreshToken: refreshToken,
           },
