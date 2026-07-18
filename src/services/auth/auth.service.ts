@@ -155,6 +155,8 @@ export class AuthService {
       });
 
       if (googleRes.ok === false || googleRes.status === 500) {
+        const error = await googleRes.text();
+        console.log(error);
         throw new BadRequestException(
           `somehting went wrong with google api to get anew token`,
         );
@@ -180,6 +182,8 @@ export class AuthService {
       });
 
       if (googleRes.ok === false || googleRes.status === 500) {
+                const error = await googleRes.text();
+        console.log(error);
         throw new BadRequestException(
           `somehting went wrong with google api to refresh token`,
         );
