@@ -115,8 +115,6 @@ export class AuthService {
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const userData = await userResponse.json();
-        console.log(userData, refreshToken);
-
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         newEmail = userData.email;
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
@@ -138,15 +136,6 @@ export class AuthService {
       });
 
       if (!user) {
-        console.log(
-          newEmail,
-          newName,
-          newPhotoUrl,
-          name,
-          email,
-          photoUrl,
-          oAuthProvider,
-        );
         await this.prisma.uSER.create({
           data: {
             email:
