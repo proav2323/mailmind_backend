@@ -207,8 +207,8 @@ export class AuthService {
             : '',
           grant_type: 'authorization_code',
           redirect_uri: isWeb
-            ? prod === false || prod === undefined
-              ? 'http://localhost:3000/api/auth/google/api/auth/google'
+            ? prod === false
+              ? 'http://localhost:3000/api/auth/google'
               : 'https://mailmind-frontend-web.vercel.app/api/auth/google'
             : '',
         }).toString(),
