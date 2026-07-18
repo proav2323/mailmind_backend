@@ -115,6 +115,7 @@ export class AuthService {
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const userData = await userResponse.json();
+        console.log(userData, refreshToken);
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         newEmail = userData.email;
@@ -140,10 +141,15 @@ export class AuthService {
         await this.prisma.uSER.create({
           data: {
             email: email === 'web' ? newEmail : email,
-            name: name === 'web' ? newName : name,
-            photoUrl: photoUrl === 'web' ? newPhotoUrl : photoUrl,
+            name: name === 'web' ? (newName ? newName : 'no name') : name,
+            photoUrl:
+              photoUrl === 'web'
+                ? newPhotoUrl
+                  ? newPhotoUrl
+                  : 'no photo'
+                : photoUrl,
             oAuthProvider: oAuthProvider,
-            refreshToken: refreshToken,
+            refreshToken: refreshToken ? refreshToken : 'no refresh token',
             id: generateId(8),
           },
         });
@@ -185,13 +191,6 @@ export class AuthService {
     prod?: boolean,
   ): Promise<globalThis.Response> {
     if (isServerCode) {
-      console.log(
-        isWeb
-          ? prod === false
-            ? 'http://localhost:3000/api/auth/google'
-            : 'https://mailmind-frontend-web.vercel.app/api/auth/google'
-          : '',
-      );
       const googleRes = await fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
         headers: {
