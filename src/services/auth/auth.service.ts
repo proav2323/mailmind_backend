@@ -69,7 +69,6 @@ export class AuthService {
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const data: any = await googleRes.json();
-
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const refreshToken: string = data['refresh_token'] as string;
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -81,24 +80,53 @@ export class AuthService {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const expressIn: number = data['expires_in'] as number;
 
+      let newEmail = '';
+      let newName = '';
+      let newPhotoUrl = '';
+
+      if (name === 'web' && email === 'web' && photoUrl === 'web') {
+        // 2. Fetch user profile information using the access token
+        const userResponse = await fetch(
+          'https://www.googleapis.com/oauth2/v3/userinfo',
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          },
+        );
+
+        if (!userResponse.ok || userResponse.status === 500) {
+          const error = await userResponse.text();
+          throw new BadRequestException('somethin went wrong' + error);
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const userData = await userResponse.json();
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        newEmail = userData.email;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        newName = userData.name;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        newPhotoUrl = userData.picture;
+      }
+
       await this.updateToken(
         accessToken,
         accessTokenMobile,
         idToken,
         expressIn,
-        email,
+        email === 'web' ? newEmail : email,
       );
 
       const user = await this.prisma.uSER.findUnique({
-        where: { email: email },
+        where: { email: email === 'web' ? newEmail : email },
       });
 
       if (!user) {
         await this.prisma.uSER.create({
           data: {
-            email: email,
-            name: name,
-            photoUrl: photoUrl,
+            email: email === 'web' ? newEmail : email,
+            name: name === 'web' ? newName : name,
+            photoUrl: photoUrl === 'web' ? newPhotoUrl : photoUrl,
             oAuthProvider: oAuthProvider,
             refreshToken: refreshToken,
             id: generateId(8),
@@ -108,6 +136,10 @@ export class AuthService {
         await this.prisma.uSER.update({
           where: { email: email },
           data: {
+            email: email === 'web' ? newEmail : email,
+            name: name === 'web' ? newName : name,
+            photoUrl: photoUrl === 'web' ? newPhotoUrl : photoUrl,
+            oAuthProvider: oAuthProvider,
             refreshToken: refreshToken,
           },
         });
