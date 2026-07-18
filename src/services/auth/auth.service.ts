@@ -74,6 +74,10 @@ export class AuthService {
         prod,
       );
 
+      if (!googleRes.ok || googleRes.status === 500) {
+        throw new BadRequestException('cant get new access token');
+      }
+
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const data: any = await googleRes.json();
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -192,20 +196,12 @@ export class AuthService {
             : '',
           grant_type: 'authorization_code',
           redirect_uri: isWeb
-            ? prod
+            ? prod === false || prod === undefined
               ? 'http://localhost:3000/api/auth/google/api/auth/google'
-              : 'http://localhost:3000/api/auth/google'
+              : 'https://mailmind-frontend-web.vercel.app/api/auth/google'
             : '',
         }).toString(),
       });
-
-      if (googleRes.ok === false || googleRes.status === 500) {
-        const error = await googleRes.text();
-        console.log(error);
-        throw new BadRequestException(
-          `somehting went wrong with google api to get anew token`,
-        );
-      }
 
       return googleRes;
     } else {
@@ -225,14 +221,6 @@ export class AuthService {
           grant_type: 'refresh_token',
         }).toString(),
       });
-
-      if (googleRes.ok === false || googleRes.status === 500) {
-        const error = await googleRes.text();
-        console.log(error);
-        throw new BadRequestException(
-          `somehting went wrong with google api to refresh token`,
-        );
-      }
 
       return googleRes;
     }
