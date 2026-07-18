@@ -75,7 +75,11 @@ export class AuthService {
       );
 
       if (!googleRes.ok || googleRes.status === 500) {
-        throw new BadRequestException('cant get new access token');
+        const error = await googleRes.text();
+        console.log(error);
+        throw new BadRequestException(
+          'cant get new access token becuase: ' + error,
+        );
       }
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
