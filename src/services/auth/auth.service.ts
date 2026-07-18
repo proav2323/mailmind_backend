@@ -138,6 +138,7 @@ export class AuthService {
       });
 
       if (!user) {
+        console.log(newEmail, newName, newPhotoUrl, name, email, photoUrl);
         await this.prisma.uSER.create({
           data: {
             email:
