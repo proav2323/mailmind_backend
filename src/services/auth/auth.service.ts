@@ -202,6 +202,7 @@ export class AuthService {
     prod?: boolean,
   ): Promise<globalThis.Response> {
     console.log(
+      prod,
       isWeb
         ? prod === false
           ? 'http://localhost:3000/api/auth/google'
