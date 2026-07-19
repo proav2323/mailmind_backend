@@ -19,13 +19,18 @@ export class AuthService {
   async auth(req: Request) {
     const token = (req as Request & { cookies?: Record<string, string> })
       .cookies?.token;
-    if (!token) {
+    let secondToken: string | undefined = undefined;
+    if (req.headers.get('Authorization') !== null) {
+      secondToken = req.headers.get('Authorization')!.split(' ')[1];
+    }
+
+    if (!token && !secondToken) {
       console.log('no token');
       throw new BadRequestException('token not valid');
     }
 
     const decoded = this.JWT.verify<{ email: string; accessToken: string }>(
-      token,
+      token !== undefined && token !== null ? token : secondToken!,
       { secret: process.env.JWT_SECRET },
     );
 
@@ -65,7 +70,6 @@ export class AuthService {
     const accessTokenMobile: string = body['accessToken'] as string;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const redirectUrl: string = body['redirectUrl'] as string;
-
 
     try {
       const googleRes = await this.getNewAccessToken(
