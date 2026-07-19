@@ -64,13 +64,15 @@ export class AuthService {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const accessTokenMobile: string = body['accessToken'] as string;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const prod: boolean = Boolean(body['prod']);
+    const redirectUrl: string = body['redirectUrl'] as string;
+
+    console.log(redirectUrl);
 
     try {
       const googleRes = await this.getNewAccessToken(
         serverAuthCode,
         true,
-        prod,
+        redirectUrl,
         email === 'web' ? true : false,
       );
 
@@ -198,20 +200,11 @@ export class AuthService {
   async getNewAccessToken(
     refreshToken: string,
     isServerCode: boolean,
-    prod: boolean,
+    redirectUrl: string,
     isWeb: boolean,
   ): Promise<globalThis.Response> {
     if (isServerCode) {
       if (isWeb) {
-        let redirectUrl =
-          'https://mailmind-frontend-web.vercel.app/api/auth/google';
-
-        if (prod === false) {
-          redirectUrl = 'http://localhost:3000/api/auth/google';
-          console.log('done');
-        }
-        console.log(typeof prod, prod, redirectUrl);
-
         const googleRes = await fetch('https://oauth2.googleapis.com/token', {
           method: 'POST',
           headers: {
