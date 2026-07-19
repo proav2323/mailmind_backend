@@ -208,8 +208,9 @@ export class AuthService {
 
         if (prod === false) {
           redirectUrl = 'http://localhost:3000/api/auth/google';
+          console.log('done');
         }
-        console.log(typeof prod, redirectUrl);
+        console.log(typeof prod, prod, redirectUrl);
 
         const googleRes = await fetch('https://oauth2.googleapis.com/token', {
           method: 'POST',
