@@ -204,9 +204,9 @@ export class AuthService {
     console.log(
       prod,
       isWeb
-        ? prod == false
-          ? 'http://localhost:3000/api/auth/google'
-          : 'https://mailmind-frontend-web.vercel.app/api/auth/google'
+        ? prod == true
+          ? 'https://mailmind-frontend-web.vercel.app/api/auth/google'
+          : 'http://localhost:3000/api/auth/google'
         : '',
     );
     if (isServerCode) {
