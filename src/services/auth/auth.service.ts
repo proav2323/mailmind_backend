@@ -70,8 +70,8 @@ export class AuthService {
       const googleRes = await this.getNewAccessToken(
         serverAuthCode,
         true,
-        email === 'web' ? true : false,
         prod,
+        email === 'web' ? true : false,
       );
 
       if (!googleRes.ok || googleRes.status === 500) {
@@ -198,8 +198,8 @@ export class AuthService {
   async getNewAccessToken(
     refreshToken: string,
     isServerCode: boolean,
+    prod: boolean,
     isWeb?: boolean,
-    prod?: boolean,
   ): Promise<globalThis.Response> {
     console.log(
       prod,
@@ -225,9 +225,9 @@ export class AuthService {
             : '',
           grant_type: 'authorization_code',
           redirect_uri: isWeb
-            ? prod === false
-              ? 'http://localhost:3000/api/auth/google'
-              : 'https://mailmind-frontend-web.vercel.app/api/auth/google'
+            ? prod
+              ? 'https://mailmind-frontend-web.vercel.app/api/auth/google'
+              : 'http://localhost:3000/api/auth/google'
             : '',
         }).toString(),
       });
