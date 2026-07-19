@@ -20,8 +20,9 @@ export class AuthService {
     const token = (req as Request & { cookies?: Record<string, string> })
       .cookies?.token;
     let secondToken: string | undefined = undefined;
-    if (headers.Autorization !== null) {
-      secondToken = headers.Authorizationss.split(' ')[1];
+    if (headers.Autorization !== null && headers.Authorization !== undefined) {
+      secondToken = headers.Authorization.split(' ')[1];
+      console.log(secondToken);
     }
 
     if (!token && !secondToken) {
