@@ -199,7 +199,7 @@ export class AuthService {
     refreshToken: string,
     isServerCode: boolean,
     prod: boolean,
-    isWeb?: boolean,
+    isWeb: boolean,
   ): Promise<globalThis.Response> {
     console.log(
       prod,
