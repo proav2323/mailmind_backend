@@ -36,10 +36,13 @@ export class AuthService {
       throw new BadRequestException('token not valid');
     }
 
-    const decoded = this.JWT.verify<{ email: string; accessToken: string }>(
-      token !== undefined && token !== null ? token : secondToken!,
-      { secret: process.env.JWT_SECRET },
-    );
+    const decoded = this.JWT.verify<{
+      email: string;
+      scopes: string[];
+      scope: string;
+    }>(token !== undefined && token !== null ? token : secondToken!, {
+      secret: process.env.JWT_SECRET,
+    });
 
     const user = await this.prisma.uSER.findUnique({
       where: { email: decoded.email },
@@ -191,7 +194,7 @@ export class AuthService {
 
       const token = this.JWT.sign(
         {
-          email: email,
+          email: email === 'web' ? newEmail : email,
           scopes: scopes,
           scope: scope,
         },
