@@ -66,7 +66,6 @@ export class AuthService {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const redirectUrl: string = body['redirectUrl'] as string;
 
-    console.log(redirectUrl);
 
     try {
       const googleRes = await this.getNewAccessToken(
