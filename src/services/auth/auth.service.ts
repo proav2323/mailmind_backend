@@ -64,7 +64,7 @@ export class AuthService {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const accessTokenMobile: string = body['accessToken'] as string;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const prod: boolean | undefined = body['prod'] as boolean | undefined;
+    const prod: boolean = body['prod'] as boolean;
 
     try {
       const googleRes = await this.getNewAccessToken(
@@ -204,7 +204,7 @@ export class AuthService {
     console.log(
       prod,
       isWeb
-        ? prod == true
+        ? prod
           ? 'https://mailmind-frontend-web.vercel.app/api/auth/google'
           : 'http://localhost:3000/api/auth/google'
         : '',
