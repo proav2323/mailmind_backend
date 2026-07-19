@@ -202,38 +202,57 @@ export class AuthService {
     isWeb: boolean,
   ): Promise<globalThis.Response> {
     if (isServerCode) {
-      console.log(
-        prod,
-        isWeb
-          ? prod
-            ? 'https://mailmind-frontend-web.vercel.app/api/auth/google'
-            : 'http://localhost:3000/api/auth/google'
-          : '',
-      );
-      const googleRes = await fetch('https://oauth2.googleapis.com/token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          code: refreshToken,
-          client_id: process.env.GOOGLE_CLIENT_ID
-            ? process.env.GOOGLE_CLIENT_ID
-            : '',
-          client_secret: process.env.GOOGLE_CLIENT_SECRET
-            ? process.env.GOOGLE_CLIENT_SECRET
-            : '',
-          grant_type: 'authorization_code',
-          redirect_uri: isWeb
-            ? prod
-              ? 'https://mailmind-frontend-web.vercel.app/api/auth/google'
-              : 'http://localhost:3000/api/auth/google'
-            : '',
-        }).toString(),
-      });
+      if (isWeb) {
+        let redirectUrl =
+          'https://mailmind-frontend-web.vercel.app/api/auth/google';
 
-      return googleRes;
+        if (prod === false) {
+          redirectUrl = 'http://localhost:3000/api/auth/google';
+        }
+        console.log(typeof prod, redirectUrl);
+
+        const googleRes = await fetch('https://oauth2.googleapis.com/token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+            code: refreshToken,
+            client_id: process.env.GOOGLE_CLIENT_ID
+              ? process.env.GOOGLE_CLIENT_ID
+              : '',
+            client_secret: process.env.GOOGLE_CLIENT_SECRET
+              ? process.env.GOOGLE_CLIENT_SECRET
+              : '',
+            grant_type: 'authorization_code',
+            redirect_uri: redirectUrl,
+          }).toString(),
+        });
+
+        return googleRes;
+      } else {
+        const googleRes = await fetch('https://oauth2.googleapis.com/token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+            code: refreshToken,
+            client_id: process.env.GOOGLE_CLIENT_ID
+              ? process.env.GOOGLE_CLIENT_ID
+              : '',
+            client_secret: process.env.GOOGLE_CLIENT_SECRET
+              ? process.env.GOOGLE_CLIENT_SECRET
+              : '',
+            grant_type: 'authorization_code',
+            redirect_uri: '',
+          }).toString(),
+        });
+
+        return googleRes;
+      }
     } else {
+      // is web integration
       const googleRes = await fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
         headers: {
