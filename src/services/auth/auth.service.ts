@@ -64,7 +64,7 @@ export class AuthService {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const accessTokenMobile: string = body['accessToken'] as string;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const prod: boolean = body['prod'] as boolean;
+    const prod: boolean = Boolean(body['prod']);
 
     try {
       const googleRes = await this.getNewAccessToken(
