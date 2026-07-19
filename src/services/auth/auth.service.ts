@@ -201,15 +201,15 @@ export class AuthService {
     prod: boolean,
     isWeb: boolean,
   ): Promise<globalThis.Response> {
-    console.log(
-      prod,
-      isWeb
-        ? prod
-          ? 'https://mailmind-frontend-web.vercel.app/api/auth/google'
-          : 'http://localhost:3000/api/auth/google'
-        : '',
-    );
     if (isServerCode) {
+      console.log(
+        prod,
+        isWeb
+          ? prod
+            ? 'https://mailmind-frontend-web.vercel.app/api/auth/google'
+            : 'http://localhost:3000/api/auth/google'
+          : '',
+      );
       const googleRes = await fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
         headers: {
