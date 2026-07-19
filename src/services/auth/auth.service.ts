@@ -16,12 +16,12 @@ export class AuthService {
     private redis: RedisService,
     private encrpyt: EcryptionService,
   ) {}
-  async auth(req: Request) {
+  async auth(req: Request, headers: Record<string, string>) {
     const token = (req as Request & { cookies?: Record<string, string> })
       .cookies?.token;
     let secondToken: string | undefined = undefined;
-    if (req.headers.get('Authorization') !== null) {
-      secondToken = req.headers.get('Authorization')!.split(' ')[1];
+    if (headers.Autorization !== null) {
+      secondToken = headers.Authorizationss.split(' ')[1];
     }
 
     if (!token && !secondToken) {
