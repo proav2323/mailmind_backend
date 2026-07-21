@@ -35,7 +35,7 @@ model EMAILS {
   receivedAt DateTime
   priority   String
   category   String
-  deadline   DateTime
+  deadline   DateTime?
   isRead     Boolean
   User       USER     @relation(fields: [userId], references: [id])
   attachments ATTACHMENTS[]

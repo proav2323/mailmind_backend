@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "EMAILS" ALTER COLUMN "deadline" DROP NOT NULL;
