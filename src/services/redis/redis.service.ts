@@ -14,14 +14,15 @@ export class RedisService {
     await this.redis.del(key);
   }
 
-  async get(key: string) {
-    await this.redis.get(key);
+  async get(key: string): Promise<string | null> {
+    return await this.redis.get<string>(key);
   }
 
   async checkIfItemExpired(
     key: string,
   ): Promise<{ expired: boolean; secondsLeft: number }> {
     const remainingTime = await this.redis.ttl(key);
+    const exists = await this.redis.exists(key);
 
     if (remainingTime === -2) {
       return { expired: true, secondsLeft: 0 };

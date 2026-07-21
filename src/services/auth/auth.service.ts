@@ -276,13 +276,19 @@ export class AuthService {
 
   async updateToken(
     accessToken: string,
-    accessTokenMobile: string,
+    accessTokenMobile: string | undefined,
     idToken: string,
     expressIn: number,
     email: string,
   ) {
     const accessTokenHash = this.encrpyt.encrypt(accessToken);
-    const accessTokenMobileHash = this.encrpyt.encrypt(accessTokenMobile);
+    const accessTokenMobileHash = this.encrpyt.encrypt(
+      accessTokenMobile
+        ? accessTokenMobile
+        : this.encrpyt.decrypt(
+            (await this.redis.get(`${email}-accessTokenMobile`)) as string,
+          ),
+    );
     const idTokenHash = this.encrpyt.encrypt(idToken);
 
     await this.redis.save(accessTokenHash, `${email}-accessToken`, expressIn);
