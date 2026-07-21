@@ -1,0 +1,13 @@
+-- CreateTable
+CREATE TABLE "ATTACHMENTS" (
+    "file" TEXT NOT NULL,
+    "attachmentId" TEXT NOT NULL,
+    "mimetype" TEXT NOT NULL,
+    "gmailId" TEXT NOT NULL,
+    "emailId" TEXT NOT NULL,
+
+    CONSTRAINT "ATTACHMENTS_pkey" PRIMARY KEY ("attachmentId")
+);
+
+-- AddForeignKey
+ALTER TABLE "ATTACHMENTS" ADD CONSTRAINT "ATTACHMENTS_emailId_fkey" FOREIGN KEY ("emailId") REFERENCES "EMAILS"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
