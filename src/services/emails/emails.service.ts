@@ -82,7 +82,7 @@ export class EmailsService {
       const expressIn: number = data['expires_in'] as number;
       await this.authService.updateToken(
         accessToken,
-        undefined,
+        'no access mbile -toke and no need',
         idToken,
         expressIn,
         user.email,
@@ -109,6 +109,10 @@ export class EmailsService {
       user.refreshToken,
       decoded.scope,
     );
+
+    res.map((value) => {
+      // extract body text
+    });
 
     return res;
   }

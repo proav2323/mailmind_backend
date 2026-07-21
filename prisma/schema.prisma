@@ -31,13 +31,14 @@ model EMAILS {
   subject    String
   sender     String
   summary    String
-  body       String
+  body       Json
   receivedAt DateTime
   priority   String
   category   String
   deadline   DateTime
   isRead     Boolean
   User       USER     @relation(fields: [userId], references: [id])
+  attachments ATTACHMENTS[]
 }
 
 model notifications {
@@ -48,4 +49,13 @@ model notifications {
   scheduledTime DateTime
   isSent        Boolean
   User          USER     @relation(fields: [userId], references: [id])
+}
+
+model ATTACHMENTS {
+  file String
+  attachmentId String @id
+  mimetype String
+  gmailId String
+  emailId String
+  email EMAILS @relation(fields: [emailId], references: [id])
 }
