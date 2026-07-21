@@ -10,6 +10,7 @@ import { PrismaService } from './services/prisma/prisma.service';
 import { RedisService } from './services/redis/redis.service';
 import { RedisModule } from './redis/redis.module';
 import { EcryptionService } from './services/ecryption/ecryption.service';
+import { GoogleService } from './services/google/google.service';
 
 @Module({
   imports: [RedisModule],
@@ -22,6 +23,7 @@ import { EcryptionService } from './services/ecryption/ecryption.service';
     PrismaService,
     RedisService,
     EcryptionService,
+    GoogleService,
   ],
 })
 export class AppModule {}
