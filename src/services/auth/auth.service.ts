@@ -131,6 +131,12 @@ export class AuthService {
         newPhotoUrl = userData.picture;
       }
 
+      console.log(
+        accessToken ? true : 'no',
+        accessTokenMobile ? true : 'no',
+        idToken ? true : 'no',
+      );
+
       await this.updateToken(
         accessToken,
         accessTokenMobile,
