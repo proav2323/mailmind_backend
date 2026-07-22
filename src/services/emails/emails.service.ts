@@ -125,6 +125,7 @@ export class EmailsService {
       ); // extrach attachments
       const headersImpData =
         this.googleService.extractImporantDetailsFromEmailHeaders(value);
+
       // extrach category, prioti, summary from ai service
       // const data = await this.prisma.eMAILS.create({
       //   data: {
