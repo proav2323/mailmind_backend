@@ -282,7 +282,7 @@ export class AuthService {
 
   async updateToken(
     accessToken: string,
-    accessTokenMobile: string | undefined,
+    accessTokenMobile: string,
     idToken: string,
     expressIn: number,
     email: string,
