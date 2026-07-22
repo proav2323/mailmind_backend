@@ -6,6 +6,7 @@ import { RedisService } from '../redis/redis.service';
 import { EcryptionService } from '../ecryption/ecryption.service';
 import { GoogleService } from '../google/google.service';
 import { gmail_v1 } from 'googleapis';
+import { generateId } from 'src/utils/generateId';
 
 @Injectable()
 export class EmailsService {
@@ -24,6 +25,7 @@ export class EmailsService {
     const token = (req as Request & { cookies?: Record<string, string> })
       .cookies?.token;
     let secondToken: string | undefined = undefined;
+    const year = headers.year;
     if (headers.authorization !== null && headers.authorization !== undefined) {
       secondToken = headers.authorization.split(' ')[1];
     }
@@ -32,6 +34,11 @@ export class EmailsService {
       console.log('no token');
       throw new BadRequestException('token not valid');
     }
+
+    if (!year) {
+      throw new BadRequestException('provide year for filter');
+    }
+
     const decoded = this.JWT.verify<{
       email: string;
       scopes: string[];
@@ -108,12 +115,34 @@ export class EmailsService {
       idToken,
       user.refreshToken,
       decoded.scope,
+      year,
     );
 
     res.map((value) => {
-      // extract body text
+      const body = this.googleService.extractEmailBody(value.payload); // extract body text
+      const attachments = this.googleService.extractAttachmentMetadata(
+        value.payload,
+      ); // extrach attachments
+      const headersImpData =
+        this.googleService.extractImporantDetailsFromEmailHeaders(value);
+      // extrach category, prioti, summary from ai service
+      // const data = await this.prisma.eMAILS.create({
+      //   data: {
+      //     userId: user.id,
+      //     body: body,
+      //     gmailId: value.id!,
+      //     id: generateId(8),
+      //     isRead: false,
+      //     receivedAt: Date(headersImpData.recievedAt),
+      //     sender: headersImpData.from?.value!,
+      //     subject: headersImpData.subject?.value!,
+      //   },
+      // });
+
+      // return data;
     });
 
+    // return Promise.all(res);
     return res;
   }
 }

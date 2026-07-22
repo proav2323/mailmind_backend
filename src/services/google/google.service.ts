@@ -32,6 +32,7 @@ export class GoogleService {
     'urgent',
     'education',
     'work',
+    'school',
   ];
 
   async getEmails(
@@ -39,6 +40,7 @@ export class GoogleService {
     idToken: string,
     refreshToken: string,
     scope: string,
+    year: string,
   ): Promise<gmail_v1.Schema$Message[]> {
     this.googleClient.setCredentials({
       access_token: accessToken,
@@ -58,7 +60,7 @@ export class GoogleService {
       const keywordQuery = `(${this.workKeywords.join(' OR ')})`;
       const exclusions =
         '-category:promotions -category:social -category:updates';
-      const finalQuery = `(category:primary OR is:important) ${exclusions} ${keywordQuery}`;
+      const finalQuery = `(category:primary OR is:important) ${exclusions} ${keywordQuery} after:${year}/1/1 `;
 
       do {
         const response = await gmail.users.messages.list({
@@ -85,16 +87,19 @@ export class GoogleService {
         nextPageToken = response.data.nextPageToken;
       } while (nextPageToken);
 
-      const emailDetail = await gmail.users.messages.get({
-        userId: 'me',
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        id: userEmails[0].id,
-        access_token: accessToken,
-        auth: this.googleClient,
-        key: process.env.GMAIL_API_KEY,
+      const emailDetail = userEmails.map(async (email) => {
+        const res = await gmail.users.messages.get({
+          userId: 'me',
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+          id: email.id,
+          access_token: accessToken,
+          auth: this.googleClient,
+          key: process.env.GMAIL_API_KEY,
+        });
+        return res.data;
       });
-
-      return [emailDetail.data];
+      console.log(userEmails.length);
+      return Promise.all(emailDetail);
     } catch (err) {
       console.log(err);
       throw new BadRequestException(String(err));
@@ -219,5 +224,20 @@ export class GoogleService {
 
     // Decode via Node.js Buffer
     return Buffer.from(base64, 'base64').toString('utf-8');
+  }
+
+  extractImporantDetailsFromEmailHeaders(value: gmail_v1.Schema$Message) {
+    const subject = value.payload?.headers?.find(
+      (value) => value.name === 'Subject',
+    );
+    const deliveredTo = value.payload?.headers?.find(
+      (value) => value.name === 'To',
+    );
+    const from = value.payload?.headers?.find((value) => value.name === 'From');
+    const recievedAt = value.payload?.headers?.find(
+      (value) => value.name === 'Date',
+    );
+
+    return { subject, deliveredTo, from, recievedAt };
   }
 }
