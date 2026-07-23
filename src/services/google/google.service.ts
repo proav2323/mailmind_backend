@@ -41,6 +41,7 @@ export class GoogleService {
     refreshToken: string,
     scope: string,
     year: string,
+    isFirstTime: boolean,
   ): Promise<gmail_v1.Schema$Message[]> {
     this.googleClient.setCredentials({
       access_token: accessToken,
@@ -48,67 +49,83 @@ export class GoogleService {
       refresh_token: refreshToken,
       scope: scope,
     });
-
     const gmail = google.gmail({
       version: 'v1',
       auth: this.googleClient,
       key: process.env.GMAIL_API_KEY,
     });
     const userEmails: any[] = [];
-    try {
-      let nextPageToken: string | undefined = undefined;
-      const keywordQuery = `(${this.workKeywords.join(' OR ')})`;
-      const exclusions =
-        '-category:promotions -category:social -category:updates';
-      const finalQuery = `(category:primary OR is:important) ${exclusions} ${keywordQuery} after:${year}/1/1 `;
+    if (isFirstTime) {
+      try {
+        let nextPageToken: string | undefined = undefined;
+        const keywordQuery = `(${this.workKeywords.join(' OR ')})`;
+        const exclusions =
+          '-category:promotions -category:social -category:updates';
+        const finalQuery = `(category:primary OR is:important) ${exclusions} ${keywordQuery} after:${year}/1/1 `;
 
-      do {
-        const response = await gmail.users.messages.list({
-          userId: 'me', // 'me' indicates the authenticated user
-          maxResults: 100, // Maximum per page allowed by Google is 100 but taking to long time
-          pageToken: nextPageToken,
-          q: finalQuery,
-        });
+        do {
+          const response = await gmail.users.messages.list({
+            userId: 'me', // 'me' indicates the authenticated user
+            maxResults: 100, // Maximum per page allowed by Google is 100 but taking to long time
+            pageToken: nextPageToken,
+            q: finalQuery,
+          });
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        if (!response.ok || response.status === 500) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-          const error = await response.text();
-          throw new BadRequestException('something went wrong: ' + error);
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        if (response.data.messages) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          userEmails.push(...(response.data.messages as any[]));
-        }
+          if (!response.ok || response.status === 500) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+            const error = await response.text();
+            throw new BadRequestException('something went wrong: ' + error);
+          }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        nextPageToken = response.data.nextPageToken;
-      } while (nextPageToken);
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          if (response.data.messages) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            userEmails.push(...(response.data.messages as any[]));
+          }
 
-      const emailDetail = userEmails.map(async (email) => {
-        const res = await gmail.users.messages.get({
-          userId: 'me',
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-          id: email.id,
-          access_token: accessToken,
-          auth: this.googleClient,
-          key: process.env.GMAIL_API_KEY,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          nextPageToken = response.data.nextPageToken;
+        } while (nextPageToken);
+
+        const emailDetail = userEmails.map(async (email) => {
+          const res = await gmail.users.messages.get({
+            userId: 'me',
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            id: email.id,
+            access_token: accessToken,
+            auth: this.googleClient,
+            key: process.env.GMAIL_API_KEY,
+          });
+          return res.data;
         });
-        return res.data;
-      });
-      console.log(userEmails.length);
-      return Promise.all(emailDetail);
-    } catch (err) {
-      console.log(err);
-      throw new BadRequestException(String(err));
+        console.log(userEmails.length);
+        return Promise.all(emailDetail);
+      } catch (err) {
+        console.log(err);
+        throw new BadRequestException(String(err));
+      }
+    } else {
+      return [];
     }
   }
 
   // message id is parent email id
-  async downloadAttachment(messageId: string, attachmentId: string) {
+  async downloadAttachment(
+    messageId: string,
+    attachmentId: string,
+    accessToken: string,
+    refreshToken: string,
+    idToken: string,
+    scope: string,
+  ) {
     const gmail = google.gmail({ version: 'v1', auth: this.googleClient });
+    this.googleClient.setCredentials({
+      access_token: accessToken,
+      id_token: idToken,
+      refresh_token: refreshToken,
+      scope: scope,
+    });
 
     try {
       // 1. Fetch the raw attachment payload from Google
@@ -239,5 +256,52 @@ export class GoogleService {
     );
 
     return { subject, deliveredTo, from, recievedAt };
+  }
+  async getEmailFromHistoryId(
+    historyId: string,
+    accessToken: string,
+    refreshToken: string,
+    idToken: string,
+  ) {
+    this.googleClient.setCredentials({
+      access_token: accessToken,
+      id_token: idToken,
+      refresh_token: refreshToken,
+    });
+
+    const gmail = google.gmail({
+      version: 'v1',
+      auth: this.googleClient,
+      key: process.env.GMAIL_API_KEY,
+    });
+
+    const listMsg = await gmail.users.history.list({
+      userId: 'me',
+      startHistoryId: historyId,
+    });
+    const newEmails: gmail_v1.Schema$Message[] = [];
+
+    if (listMsg.data.history?.length === 0 || !listMsg.data.history) {
+      return;
+    }
+
+    for (const historyItem of listMsg.data.history) {
+      if (historyItem.messagesAdded) {
+        for (const messageAddedItem of historyItem.messagesAdded) {
+          const messageId = messageAddedItem.message?.id;
+          const res = await gmail.users.messages.get({
+            userId: 'me',
+            access_token: accessToken,
+            auth: this.googleClient,
+            key: process.env.GMAIL_API_KEY,
+            id: messageId!,
+          });
+
+          newEmails.push(res.data);
+        }
+      }
+    }
+
+    return newEmails;
   }
 }
