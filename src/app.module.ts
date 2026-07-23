@@ -11,6 +11,8 @@ import { RedisService } from './services/redis/redis.service';
 import { RedisModule } from './redis/redis.module';
 import { EcryptionService } from './services/ecryption/ecryption.service';
 import { GoogleService } from './services/google/google.service';
+import { SocketGateway } from './gateways/socket/socket.gateway';
+import { PubSubService } from './services/pub-sub/pub-sub.service';
 
 @Module({
   imports: [RedisModule],
@@ -24,6 +26,8 @@ import { GoogleService } from './services/google/google.service';
     RedisService,
     EcryptionService,
     GoogleService,
+    SocketGateway,
+    PubSubService,
   ],
 })
 export class AppModule {}
