@@ -71,6 +71,7 @@ export class EmailsService {
 
     const user = await this.prisma.uSER.findUnique({
       where: { email: decoded.email },
+      include: { categories: {} },
     });
 
     if (!user) {
@@ -141,15 +142,12 @@ export class EmailsService {
       isFirst,
     ); // store hsitory id in user databse to get new emails when user opens up the app and when user login again after 1 day, loop throught emails to chnage thir priority for user's new day
 
-    const response = res.map(async (value) => {
-      const email = await this.prisma.eMAILS.findUnique({
-        where: { id: value.id! },
-      });
+    const newUserCategories = user.categories.map((value) => {
+      return { name: value.name, desc: value.desc };
+    });
 
-      if (email) {
-        return false;
-      }
-
+    newUserCategories.forEach((value) => this.categroies.push(value));
+    const response = res.map((value) => {
       const body = this.googleService.extractEmailBody(value.payload); // extract body text
       const attachments = this.googleService.extractAttachmentMetadata(
         value.payload,
@@ -157,73 +155,94 @@ export class EmailsService {
       const headersImpData =
         this.googleService.extractImporantDetailsFromEmailHeaders(value);
 
-      const aiRes = await fetch(`${process.env.AI_BACKEND_URL}/email`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          categories: JSON.stringify(this.categroies),
-          emailBody: JSON.stringify(body),
-        }),
-      });
-
-      if (!aiRes.ok || aiRes.status === 500) {
-        const error = await aiRes.text();
-        console.log(error);
-        return false;
-      }
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const aiData = await aiRes.json();
-
-      const data = await this.prisma.eMAILS.create({
-        data: {
-          userId: user.id,
-          body: body,
-          gmailId: value.id!,
-          id: generateId(8),
-          isRead: false,
-          receivedAt: new Date(
-            headersImpData.recievedAt?.value
-              ? headersImpData.recievedAt.value
-              : Date.now(),
-          ),
-          sender: headersImpData.from?.value ? headersImpData.from?.value : '',
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-          subject: aiData.subject,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-          category: aiData.category,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-          priority: aiData.pr,
-          GmailSubject: headersImpData.subject?.value
-            ? headersImpData.subject.value
-            : '',
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-          summary: aiData.summary,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-          deadline: aiData.deadline,
-        },
-      });
-
-      const attach = attachments.map(async (value) => {
-        await this.prisma.eMAILS.update({
-          where: { id: data.id },
-          data: {
-            attachments: {
-              create: {
-                attachmentId: value.attachmentId,
-                file: value.filename,
-                mimetype: value.mimeType,
-                gmailId: data.gmailId,
-              },
-            },
-          },
-        });
-
-        return true;
-      });
-
-      return Promise.all(attach);
+      return {
+        body: body,
+        attachments: attachments,
+        headers: headersImpData,
+        myGivenId: generateId(8),
+        categories: this.categroies,
+        ...value,
+      };
     });
 
-    return Promise.all(response);
+    const aiRes = await fetch(`${process.env.AI_BACKEND_URL}/email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: JSON.stringify(response) }),
+    });
+
+    if (!aiRes.ok || aiRes.status === 500) {
+      const error = await aiRes.text();
+      console.log(error);
+      throw new BadRequestException('error occured: ' + error);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const aiData = await aiRes.json();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    const aiArrays = aiData.data;
+    console.log(aiArrays);
+
+    // res.map(async (value) => {
+    //   const email = await this.prisma.eMAILS.findUnique({
+    //     where: { id: value.id! },
+    //   });
+    //   if (email) {
+    //     return;
+    //   }
+    // });
+
+    // const data = await this.prisma.eMAILS.create({
+    //   data: {
+    //     userId: user.id,
+    //     body: body,
+    //     gmailId: value.id!,
+    //     id: generateId(8),
+    //     isRead: false,
+    //     receivedAt: new Date(
+    //       headersImpData.recievedAt?.value
+    //         ? headersImpData.recievedAt.value
+    //         : Date.now(),
+    //     ),
+    //     sender: headersImpData.from?.value ? headersImpData.from?.value : '',
+    //     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    //     subject: aiData.subject,
+    //     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    //     category: aiData.category,
+    //     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    //     priority: aiData.pr,
+    //     GmailSubject: headersImpData.subject?.value
+    //       ? headersImpData.subject.value
+    //       : '',
+    //     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    //     summary: aiData.summary,
+    //     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    //     deadline: aiData.deadline,
+    //   },
+    // });
+
+    // const attach = attachments.map(async (value) => {
+    //   await this.prisma.eMAILS.update({
+    //     where: { id: data.id },
+    //     data: {
+    //       attachments: {
+    //         create: {
+    //           attachmentId: value.attachmentId,
+    //           file: value.filename,
+    //           mimetype: value.mimeType,
+    //           gmailId: data.gmailId,
+    //         },
+    //       },
+    //     },
+    //   });
+
+    //   return true;
+    // });
+
+    // return Promise.all(attach);
+
+    // return Promise.all(response);
+
+    return [];
   }
 }
