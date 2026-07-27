@@ -161,8 +161,8 @@ export class EmailsService {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          categories: this.categroies,
-          emailBody: body,
+          categories: JSON.stringify(this.categroies),
+          emailBody: JSON.stringify(body),
         }),
       });
 
