@@ -181,7 +181,6 @@ export class EmailsService {
     const aiData = await aiRes.json();
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
     const aiArrays = aiData.data;
-    console.log(aiArrays);
 
     // res.map(async (value) => {
     //   const email = await this.prisma.eMAILS.findUnique({
@@ -243,6 +242,6 @@ export class EmailsService {
 
     // return Promise.all(response);
 
-    return [];
+    return aiArrays;
   }
 }
