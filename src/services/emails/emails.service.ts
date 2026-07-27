@@ -47,7 +47,7 @@ export class EmailsService {
       .cookies?.token;
     let secondToken: string | undefined = undefined;
     const year = headers.year;
-    console.log(headers.first);
+    console.log(headers.first, year);
     const isFirst = Boolean(headers.first);
     if (headers.authorization !== null && headers.authorization !== undefined) {
       secondToken = headers.authorization.split(' ')[1];
