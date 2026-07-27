@@ -167,7 +167,6 @@ export class AuthService {
             oAuthProvider: oAuthProvider,
             refreshToken: refreshToken ? refreshToken : 'no refresh token',
             id: generateId(8),
-            categories: [],
           },
         });
       } else {

@@ -18,7 +18,7 @@ model USER {
   year          Int?
   oAuthProvider String
   refreshToken String
-  categories String[]
+  categories    CATEGORIES[]
   created_at    DateTime        @default(now())
   updated_at    DateTime        @updatedAt
   emails        EMAILS[]
@@ -30,6 +30,7 @@ model EMAILS {
   userId     String
   gmailId    String
   subject    String
+  GmailSubject String
   sender     String
   summary    String
   body       Json
@@ -59,4 +60,12 @@ model ATTACHMENTS {
   gmailId String
   emailId String
   email EMAILS @relation(fields: [emailId], references: [id])
+}
+
+model CATEGORIES {
+  id String @id
+  name String
+  desc String
+  userId String
+  user USER @relation(fields: [userId], references: [id])
 }

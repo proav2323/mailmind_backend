@@ -99,7 +99,6 @@ export class GoogleService {
           });
           return res.data;
         });
-        console.log(userEmails.length);
         return Promise.all(emailDetail);
       } catch (err) {
         console.log(err);
