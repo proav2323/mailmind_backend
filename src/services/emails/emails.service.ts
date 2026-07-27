@@ -160,10 +160,13 @@ export class EmailsService {
       const aiRes = await fetch(`${process.env.AI_BACKEND_URL}/email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: new URLSearchParams({
-          categories: JSON.stringify(this.categroies),
-          emailBody: JSON.stringify(body),
-        }),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        body: JSON.parse(
+          JSON.stringify({
+            categories: this.categroies,
+            emailBody: body,
+          }),
+        ),
       });
 
       if (!aiRes.ok || aiRes.status === 500) {
