@@ -47,7 +47,6 @@ export class EmailsService {
       .cookies?.token;
     let secondToken: string | undefined = undefined;
     const year = headers.year;
-    console.log(headers.first, year);
     const isFirst = Boolean(headers.first);
     if (headers.authorization !== null && headers.authorization !== undefined) {
       secondToken = headers.authorization.split(' ')[1];
@@ -157,14 +156,13 @@ export class EmailsService {
       ); // extrach attachments
       const headersImpData =
         this.googleService.extractImporantDetailsFromEmailHeaders(value);
-      console.log(process.env.AI_BACKEND_URL);
 
       const aiRes = await fetch(`${process.env.AI_BACKEND_URL}/email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: new URLSearchParams({
           categories: JSON.stringify(this.categroies),
-          email: JSON.stringify(body),
+          emailBody: JSON.stringify(body),
         }),
       });
 
