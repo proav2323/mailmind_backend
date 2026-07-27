@@ -139,7 +139,7 @@ export class EmailsService {
       decoded.scope,
       year,
       isFirst,
-    );
+    ); // store hsitory id in user databse to get new emails when user opens up the app and when user login again after 1 day, loop throught emails to chnage thir priority for user's new day
 
     const response = res.map(async (value) => {
       const email = await this.prisma.eMAILS.findUnique({
@@ -156,6 +156,7 @@ export class EmailsService {
       ); // extrach attachments
       const headersImpData =
         this.googleService.extractImporantDetailsFromEmailHeaders(value);
+      console.log(process.env.AI_BACKEND_URL);
 
       const aiRes = await fetch(`${process.env.AI_BACKEND_URL}/email`, {
         method: 'POST',
@@ -167,6 +168,8 @@ export class EmailsService {
       });
 
       if (!aiRes.ok || aiRes.status === 500) {
+        const error = await aiRes.text();
+        console.log(error);
         return false;
       }
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
