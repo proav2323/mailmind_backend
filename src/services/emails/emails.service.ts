@@ -47,6 +47,7 @@ export class EmailsService {
       .cookies?.token;
     let secondToken: string | undefined = undefined;
     const year = headers.year;
+    console.log(headers.first);
     const isFirst = Boolean(headers.first);
     if (headers.authorization !== null && headers.authorization !== undefined) {
       secondToken = headers.authorization.split(' ')[1];
@@ -140,8 +141,6 @@ export class EmailsService {
       year,
       isFirst,
     ); // store hsitory id in user databse to get new emails when user opens up the app and when user login again after 1 day, loop throught emails to chnage thir priority for user's new day
-
-    console.log(process.env.AI_BACKEND_URL, isFirst);
 
     const response = res.map(async (value) => {
       const email = await this.prisma.eMAILS.findUnique({
