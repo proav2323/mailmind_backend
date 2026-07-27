@@ -161,12 +161,10 @@ export class EmailsService {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        body: JSON.parse(
-          JSON.stringify({
-            categories: this.categroies,
-            emailBody: body,
-          }),
-        ),
+        body: JSON.stringify({
+          categories: this.categroies,
+          emailBody: body,
+        }),
       });
 
       if (!aiRes.ok || aiRes.status === 500) {
