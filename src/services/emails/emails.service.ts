@@ -154,7 +154,6 @@ export class EmailsService {
     });
 
     newUserCategories.forEach((value) => this.categroies.push(value));
-    console.log(res.length);
     const response = res.map((value) => {
       const body = this.googleService.extractEmailBody(value.payload); // extract body text
       const attachments = this.googleService.extractAttachmentMetadata(
