@@ -55,10 +55,6 @@ export class EmailsService {
     let secondToken: string | undefined = undefined;
     const year = headers.year;
     const isFirst = Boolean(headers.first);
-    console.log(year);
-    console.log(isFirst);
-    console.log(headers.first);
-    console.log(token);
     if (headers.authorization !== null && headers.authorization !== undefined) {
       secondToken = headers.authorization.split(' ')[1];
     }
@@ -158,6 +154,7 @@ export class EmailsService {
     });
 
     newUserCategories.forEach((value) => this.categroies.push(value));
+    console.log(res.length);
     const response = res.map((value) => {
       const body = this.googleService.extractEmailBody(value.payload); // extract body text
       const attachments = this.googleService.extractAttachmentMetadata(

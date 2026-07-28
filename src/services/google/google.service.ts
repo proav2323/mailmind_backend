@@ -109,6 +109,7 @@ export class GoogleService {
         throw new BadRequestException(String(err));
       }
     } else {
+      console.log('checking empty is this');
       return [];
     }
   }
