@@ -54,7 +54,6 @@ export class EmailsService {
       .cookies?.token;
     let secondToken: string | undefined = undefined;
     const year = headers.year;
-    const isFirst = Boolean(headers.first);
     if (headers.authorization !== null && headers.authorization !== undefined) {
       secondToken = headers.authorization.split(' ')[1];
     }
@@ -146,7 +145,7 @@ export class EmailsService {
       user.refreshToken,
       decoded.scope,
       year,
-      isFirst,
+      user.historyId === undefined || user.historyId === null ? true : false,
       user.email,
       user.historyId,
     ); // store hsitory id in user databse to get new emails when user opens up the app and when user login again after 1 day, loop throught emails to chnage thir priority for user's new day
