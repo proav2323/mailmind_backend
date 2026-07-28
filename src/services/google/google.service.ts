@@ -85,14 +85,6 @@ export class GoogleService {
             const error = await response.text();
             throw new BadRequestException('something went wrong: ' + error);
           }
-          const messages = response.data.messages!;
-          console.log(messages);
-          await this.authService.chnageuserHistoryId(
-            historyEmail,
-            messages[messages?.length - 1].historyId
-              ? messages[messages?.length - 1].historyId!
-              : undefined,
-          );
 
           if (response.data.messages) {
             userEmails.push(...response.data.messages);
@@ -101,7 +93,7 @@ export class GoogleService {
           nextPageToken = response.data.nextPageToken;
         } while (nextPageToken);
 
-        const emailDetail = userEmails.map(async (email) => {
+        const emailDetail = userEmails.map(async (email, index) => {
           const res = await gmail.users.messages.get({
             userId: 'me',
             id: email.id ? email.id : undefined,
@@ -109,6 +101,12 @@ export class GoogleService {
             auth: this.googleClient,
             key: process.env.GMAIL_API_KEY,
           });
+          if (index === userEmails.length - 1) {
+            await this.authService.chnageuserHistoryId(
+              historyEmail,
+              res.data.historyId ? res.data.historyId : undefined,
+            );
+          }
           return res.data;
         });
         return Promise.all(emailDetail);
