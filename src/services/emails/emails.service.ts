@@ -21,7 +21,6 @@ export class EmailsService {
   categroies = [
     { name: 'assignment', desc: '' },
     { name: 'project', desc: '' },
-    { name: 'deadline', desc: '' },
     { name: 'syllabus', desc: '' },
     { name: 'task', desc: '' },
     { name: 'meeting', desc: '' },
@@ -37,12 +36,20 @@ export class EmailsService {
     { name: 'education', desc: '' },
     { name: 'work', desc: '' },
     { name: 'school', desc: '' },
+    { name: 'office', desc: '' },
+    { name: 'OTP', decs: '' },
+    { name: 'event', desc: '' },
+    { name: 'hackathons', desc: '' },
+    { name: 'class', desc: '' },
+    { name: 'annoucements', desc: '' },
+    { name: 'finace', desc: '' },
+    { name: 'billing', desc: '' },
   ];
 
   async getUserEmailS(
     req: Request,
     headers: Record<string, string>,
-  ): Promise<(false | boolean[])[]> {
+  ): Promise<(undefined | boolean[])[]> {
     const token = (req as Request & { cookies?: Record<string, string> })
       .cookies?.token;
     let secondToken: string | undefined = undefined;
@@ -179,69 +186,67 @@ export class EmailsService {
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const aiData = await aiRes.json();
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-    const aiArrays = aiData.data;
+    // @typescript-eslint/no-unsafe-member-access
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const aiArrays = aiData.data as Record<string, string>[];
 
-    // res.map(async (value) => {
-    //   const email = await this.prisma.eMAILS.findUnique({
-    //     where: { id: value.id! },
-    //   });
-    //   if (email) {
-    //     return;
-    //   }
-    // });
+    const data = response.map(async (value) => {
+      const email = await this.prisma.eMAILS.findUnique({
+        where: { id: value.id! },
+      });
+      if (email) {
+        return;
+      }
 
-    // const data = await this.prisma.eMAILS.create({
-    //   data: {
-    //     userId: user.id,
-    //     body: body,
-    //     gmailId: value.id!,
-    //     id: generateId(8),
-    //     isRead: false,
-    //     receivedAt: new Date(
-    //       headersImpData.recievedAt?.value
-    //         ? headersImpData.recievedAt.value
-    //         : Date.now(),
-    //     ),
-    //     sender: headersImpData.from?.value ? headersImpData.from?.value : '',
-    //     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-    //     subject: aiData.subject,
-    //     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-    //     category: aiData.category,
-    //     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-    //     priority: aiData.pr,
-    //     GmailSubject: headersImpData.subject?.value
-    //       ? headersImpData.subject.value
-    //       : '',
-    //     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-    //     summary: aiData.summary,
-    //     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-    //     deadline: aiData.deadline,
-    //   },
-    // });
+      const aiData = aiArrays.find((val) => val.id === value.myGivenId);
+      if (!aiData) {
+        return;
+      }
 
-    // const attach = attachments.map(async (value) => {
-    //   await this.prisma.eMAILS.update({
-    //     where: { id: data.id },
-    //     data: {
-    //       attachments: {
-    //         create: {
-    //           attachmentId: value.attachmentId,
-    //           file: value.filename,
-    //           mimetype: value.mimeType,
-    //           gmailId: data.gmailId,
-    //         },
-    //       },
-    //     },
-    //   });
+      const data = await this.prisma.eMAILS.create({
+        data: {
+          userId: user.id,
+          body: value.body,
+          gmailId: value.id!,
+          id: generateId(8),
+          isRead: false,
+          receivedAt: new Date(
+            value.headers.recievedAt?.value
+              ? value.headers.recievedAt.value
+              : Date.now(),
+          ),
+          sender: value.headers.from?.value ? value.headers.from?.value : '',
+          subject: aiData.subject,
+          category: aiData.category,
+          priority: aiData.priority,
+          GmailSubject: value.headers.subject?.value
+            ? value.headers.subject.value
+            : '',
+          summary: aiData.summary,
+          deadline:
+            aiData.deadline === 'null' ? null : new Date(aiData.deadline),
+        },
+      });
 
-    //   return true;
-    // });
+      const attach = value.attachments.map(async (value) => {
+        await this.prisma.eMAILS.update({
+          where: { id: data.id },
+          data: {
+            attachments: {
+              create: {
+                attachmentId: value.attachmentId,
+                file: value.filename,
+                mimetype: value.mimeType,
+                gmailId: data.gmailId,
+              },
+            },
+          },
+        });
+        return true;
+      });
+      return Promise.all(attach);
+    });
 
-    // return Promise.all(attach);
-
-    // return Promise.all(response);
-
-    return aiArrays;
+    return Promise.all(data);
   }
 }

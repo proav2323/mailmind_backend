@@ -33,6 +33,10 @@ export class GoogleService {
     'education',
     'work',
     'school',
+    'office',
+    'class',
+    'annoucements',
+    'billing',
   ];
 
   async getEmails(
