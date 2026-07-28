@@ -28,7 +28,7 @@ model USER {
 model EMAILS {
   id         String   @id
   userId     String
-  gmailId    String
+  gmailId    String @unique
   subject    String
   GmailSubject String
   sender     String

@@ -192,7 +192,7 @@ export class EmailsService {
 
     const data = response.map(async (value) => {
       const email = await this.prisma.eMAILS.findUnique({
-        where: { id: value.id! },
+        where: { gmailId: value.id! },
       });
       if (email) {
         return;
@@ -208,13 +208,11 @@ export class EmailsService {
           userId: user.id,
           body: value.body,
           gmailId: value.id!,
-          id: generateId(8),
+          id: value.myGivenId,
           isRead: false,
-          receivedAt: new Date(
-            value.headers.recievedAt?.value
-              ? value.headers.recievedAt.value
-              : Date.now(),
-          ),
+          receivedAt: value.headers.recievedAt?.value
+            ? new Date(value.headers.recievedAt.value)
+            : new Date(Date.now()),
           sender: value.headers.from?.value ? value.headers.from?.value : '',
           subject: aiData.subject,
           category: aiData.category,
