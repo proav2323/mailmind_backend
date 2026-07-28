@@ -5,9 +5,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { gmail_v1, google } from 'googleapis';
+import { AuthService } from '../auth/auth.service';
+import { GaxiosResponseWithHTTP2 } from 'googleapis-common';
 
 @Injectable()
 export class GoogleService {
+  constructor(private authService: AuthService) {}
   googleClient = new google.auth.OAuth2({
     client_id: process.env.GOOGLE_CLIENT_ID,
     clientId: process.env.GOOGLE_CLIENT_ID,
@@ -46,6 +49,8 @@ export class GoogleService {
     scope: string,
     year: string,
     isFirstTime: boolean,
+    historyEmail: string,
+    historyId: string | null,
   ): Promise<gmail_v1.Schema$Message[]> {
     this.googleClient.setCredentials({
       access_token: accessToken,
@@ -58,45 +63,47 @@ export class GoogleService {
       auth: this.googleClient,
       key: process.env.GMAIL_API_KEY,
     });
-    const userEmails: any[] = [];
     if (isFirstTime) {
       try {
-        let nextPageToken: string | undefined = undefined;
+        const userEmails: gmail_v1.Schema$Message[] = [];
+        let nextPageToken: string | undefined | null = undefined;
         const keywordQuery = `(${this.workKeywords.join(' OR ')})`;
         const exclusions =
           '-category:promotions -category:social -category:updates';
         const finalQuery = `(category:primary OR is:important) ${exclusions} ${keywordQuery} after:${year}/1/1 `;
 
         do {
-          const response = await gmail.users.messages.list({
-            userId: 'me', // 'me' indicates the authenticated user
-            maxResults: 100, // Maximum per page allowed by Google is 100 but taking to long time
-            pageToken: nextPageToken,
-            q: finalQuery,
-          });
+          const response: GaxiosResponseWithHTTP2<gmail_v1.Schema$ListMessagesResponse> =
+            await gmail.users.messages.list({
+              userId: 'me', // 'me' indicates the authenticated user
+              maxResults: 100, // Maximum per page allowed by Google is 100 but taking to long time
+              pageToken: nextPageToken,
+              q: finalQuery,
+            });
 
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           if (!response.ok || response.status === 500) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
             const error = await response.text();
             throw new BadRequestException('something went wrong: ' + error);
           }
+          const messages = response.data.messages!;
+          await this.authService.chnageuserHistoryId(
+            historyEmail,
+            messages[messages?.length - 1].historyId
+              ? messages[messages?.length - 1].historyId!
+              : undefined,
+          );
 
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           if (response.data.messages) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            userEmails.push(...(response.data.messages as any[]));
+            userEmails.push(...response.data.messages);
           }
 
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           nextPageToken = response.data.nextPageToken;
         } while (nextPageToken);
 
         const emailDetail = userEmails.map(async (email) => {
           const res = await gmail.users.messages.get({
             userId: 'me',
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-            id: email.id,
+            id: email.id ? email.id : undefined,
             access_token: accessToken,
             auth: this.googleClient,
             key: process.env.GMAIL_API_KEY,
@@ -109,7 +116,50 @@ export class GoogleService {
         throw new BadRequestException(String(err));
       }
     } else {
-      return [];
+      try {
+        let nextPageToken: string | undefined | null = undefined;
+        const usersEmails: gmail_v1.Schema$History[] = [];
+        do {
+          const response: GaxiosResponseWithHTTP2<gmail_v1.Schema$ListHistoryResponse> =
+            await gmail.users.history.list({
+              userId: 'me', // 'me' indicates the authenticated user
+              maxResults: 100, // Maximum per page allowed by Google is 100 but taking to long time
+              pageToken: nextPageToken,
+              startHistoryId: historyId === null ? undefined : historyId,
+            });
+
+          if (!response.ok || response.status === 500) {
+            const error = await response.text();
+            throw new BadRequestException('something went wrong: ' + error);
+          }
+
+          await this.authService.chnageuserHistoryId(
+            historyEmail,
+            response.data.historyId ? response.data.historyId : undefined,
+          );
+
+          if (response.data.history) {
+            usersEmails.push(...response.data.history);
+          }
+
+          nextPageToken = response.data.nextPageToken;
+        } while (nextPageToken);
+
+        const emailDetail = usersEmails.map(async (email) => {
+          const res = await gmail.users.messages.get({
+            userId: 'me',
+            id: email.id ? email.id : undefined,
+            access_token: accessToken,
+            auth: this.googleClient,
+            key: process.env.GMAIL_API_KEY,
+          });
+          return res.data;
+        });
+        return Promise.all(emailDetail);
+      } catch (err) {
+        console.log(err);
+        throw new BadRequestException(String(err));
+      }
     }
   }
 

@@ -19,31 +19,31 @@ export class EmailsService {
   ) {}
 
   categroies = [
-    { name: 'assignment', desc: '' },
-    { name: 'project', desc: '' },
-    { name: 'syllabus', desc: '' },
-    { name: 'task', desc: '' },
-    { name: 'meeting', desc: '' },
-    { name: 'review', desc: '' },
-    { name: 'interview', desc: '' },
-    { name: 'course', desc: '' },
-    { name: 'exam', desc: '' },
-    { name: 'submission', desc: '' },
-    { name: 'invoice', desc: '' },
-    { name: 'report', desc: '' },
-    { name: 'schedule', desc: '' },
-    { name: 'urgent', desc: '' },
-    { name: 'education', desc: '' },
-    { name: 'work', desc: '' },
-    { name: 'school', desc: '' },
-    { name: 'office', desc: '' },
-    { name: 'OTP', decs: '' },
-    { name: 'event', desc: '' },
-    { name: 'hackathons', desc: '' },
+    { name: 'assignment' },
+    { name: 'project' },
+    { name: 'syllabus' },
+    { name: 'task' },
+    { name: 'meeting' },
+    { name: 'review' },
+    { name: 'interview' },
+    { name: 'course' },
+    { name: 'exam' },
+    { name: 'submission' },
+    { name: 'invoice' },
+    { name: 'report' },
+    { name: 'schedule' },
+    { name: 'urgent' },
+    { name: 'education' },
+    { name: 'work' },
+    { name: 'school' },
+    { name: 'office' },
+    { name: 'OTP' },
+    { name: 'event' },
+    { name: 'hackathons' },
     { name: 'class', desc: '' },
-    { name: 'annoucements', desc: '' },
-    { name: 'finace', desc: '' },
-    { name: 'billing', desc: '' },
+    { name: 'annoucements' },
+    { name: 'finace' },
+    { name: 'billing' },
   ];
 
   async getUserEmailS(
@@ -147,10 +147,12 @@ export class EmailsService {
       decoded.scope,
       year,
       isFirst,
+      user.email,
+      user.historyId,
     ); // store hsitory id in user databse to get new emails when user opens up the app and when user login again after 1 day, loop throught emails to chnage thir priority for user's new day
 
     const newUserCategories = user.categories.map((value) => {
-      return { name: value.name, desc: value.desc };
+      return { name: value.name };
     });
 
     newUserCategories.forEach((value) => this.categroies.push(value));

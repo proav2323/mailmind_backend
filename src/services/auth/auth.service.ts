@@ -305,4 +305,11 @@ export class AuthService {
     );
     await this.redis.save(idTokenHash, `${email}-idToken`, expressIn);
   } // update token on redis
+
+  async chnageuserHistoryId(email: string, value?: string) {
+    await this.prisma.uSER.update({
+      where: { email: email },
+      data: { historyId: value },
+    });
+  }
 }

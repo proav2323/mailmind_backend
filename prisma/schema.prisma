@@ -18,6 +18,7 @@ model USER {
   year          Int?
   oAuthProvider String
   refreshToken String
+  historyId String?
   categories    CATEGORIES[]
   created_at    DateTime        @default(now())
   updated_at    DateTime        @updatedAt
@@ -65,7 +66,6 @@ model ATTACHMENTS {
 model CATEGORIES {
   id String @id
   name String
-  desc String
   userId String
   user USER @relation(fields: [userId], references: [id])
 }
