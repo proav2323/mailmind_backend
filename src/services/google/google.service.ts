@@ -86,6 +86,7 @@ export class GoogleService {
             throw new BadRequestException('something went wrong: ' + error);
           }
           const messages = response.data.messages!;
+          console.log(messages);
           await this.authService.chnageuserHistoryId(
             historyEmail,
             messages[messages?.length - 1].historyId
