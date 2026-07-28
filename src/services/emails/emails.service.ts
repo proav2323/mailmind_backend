@@ -55,6 +55,10 @@ export class EmailsService {
     let secondToken: string | undefined = undefined;
     const year = headers.year;
     const isFirst = Boolean(headers.first);
+    console.log(year);
+    console.log(isFirst);
+    console.log(headers.first);
+    console.log(token);
     if (headers.authorization !== null && headers.authorization !== undefined) {
       secondToken = headers.authorization.split(' ')[1];
     }
