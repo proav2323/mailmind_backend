@@ -36,10 +36,17 @@ model EMAILS {
   summary    String
   body       Json
   receivedAt DateTime
-  priority   String
+  aiPriority   String
+  priority String
   category   String
   deadline   DateTime?
   isRead     Boolean
+  lastOpenedAt DateTime?
+  requiresAction Boolean
+  importance Int
+  urgency Int
+  senderImportance Int
+  isCompleted Boolean
   User       USER     @relation(fields: [userId], references: [id])
   attachments ATTACHMENTS[]
 }

@@ -148,7 +148,7 @@ export class EmailsService {
       user.historyId === undefined || user.historyId === null ? true : false,
       user.email,
       user.historyId,
-    ); // store hsitory id in user databse to get new emails when user opens up the app and when user login again after 1 day, loop throught emails to chnage thir priority for user's new day
+    ); // when user login again after 1 day, loop throught emails to chnage thir priority for user's new day
 
     const newUserCategories = user.categories.map((value) => {
       return { name: value.name };
@@ -189,7 +189,7 @@ export class EmailsService {
     const aiData = await aiRes.json();
     // @typescript-eslint/no-unsafe-member-access
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const aiArrays = aiData.data as Record<string, string>[];
+    const aiArrays = aiData.data as Record<string, unknown>[];
 
     const data = response.map(async (value) => {
       const email = await this.prisma.eMAILS.findUnique({
@@ -204,6 +204,16 @@ export class EmailsService {
         return;
       }
 
+      const score = this.getEmailPriorityScore(
+        aiData.importance as number,
+        aiData.urgency as number,
+        aiData.senderImportance as number,
+        aiData.deadline as string,
+        aiData.requireAction as boolean,
+        false,
+        false,
+      );
+
       const data = await this.prisma.eMAILS.create({
         data: {
           userId: user.id,
@@ -215,15 +225,23 @@ export class EmailsService {
             ? new Date(value.headers.recievedAt.value)
             : new Date(Date.now()),
           sender: value.headers.from?.value ? value.headers.from?.value : '',
-          subject: aiData.subject,
-          category: aiData.category,
-          priority: aiData.priority,
+          subject: aiData.subject as string,
+          category: aiData.category as string,
+          aiPriority: aiData.priority as string,
           GmailSubject: value.headers.subject?.value
             ? value.headers.subject.value
             : '',
-          summary: aiData.summary,
+          summary: aiData.summary as string,
           deadline:
-            aiData.deadline === 'null' ? null : new Date(aiData.deadline),
+            aiData.deadline === 'null'
+              ? null
+              : new Date(aiData.deadline as string),
+          importance: aiData.importance as number,
+          isCompleted: false,
+          requiresAction: aiData.requireAction as boolean,
+          senderImportance: aiData.senderImportance as number,
+          urgency: aiData.urgency as number,
+          priority: this.getEmailPrority(score, aiData.deadline as string),
         },
       });
 
@@ -247,5 +265,68 @@ export class EmailsService {
     });
 
     return Promise.all(data);
+  }
+
+  getEmailPriorityScore(
+    importance: number,
+    urgency: number,
+    senderImportance: number,
+    deadline: string,
+    requireAction: boolean,
+    isRead: boolean,
+    isCompleted: boolean,
+  ) {
+    let score = 0;
+
+    score += importance * 4;
+    score += urgency * 2;
+    score += senderImportance * 2;
+
+    if (requireAction) score += 10;
+
+    if (!isRead) score += 5;
+
+    score += this.deadlineScore(deadline);
+
+    if (isCompleted) score = 0;
+
+    return Math.min(score, 100);
+  }
+
+  deadlineScore(deadline: string) {
+    if (!deadline) return 0;
+    const deadlineDate = new Date(deadline);
+    const todaysDate = new Date();
+
+    todaysDate.setHours(0, 0, 0, 0);
+    deadlineDate.setHours(0, 0, 0, 0);
+
+    const diffInMs = Math.abs(deadlineDate.getTime() - todaysDate.getTime());
+
+    const days = Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
+
+    if (days <= 0) return 30;
+
+    if (days == 1) return 25;
+
+    if (days == 2) return 20;
+
+    if (days <= 5) return 15;
+
+    if (days <= 10) return 10;
+
+    if (days < 0) return 0;
+
+    return 5;
+  }
+
+  getEmailPrority(score: number, deadline: string) {
+    if (this.deadlineScore(deadline) === 0) {
+      return 'Expired';
+    }
+    if (score > 0 && score < 30) return 'Low';
+    else if (score > 30 && score < 50) return 'Meduim';
+    else if (score > 50 && score < 80) return 'High';
+    else return 'Critical';
   }
 }
