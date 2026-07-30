@@ -98,6 +98,7 @@ export class GoogleService {
 
         // This historyId represents the exact state of the mailbox right now
         const realTimeHistoryId = profileResponse.data.historyId;
+        console.log(realTimeHistoryId);
 
         if (!realTimeHistoryId) {
           throw new Error(
@@ -148,6 +149,7 @@ export class GoogleService {
           if (response.data.history) {
             usersEmails.push(...response.data.history);
           }
+          console.log(response.data.historyId);
 
           nextPageToken = response.data.nextPageToken;
         } while (nextPageToken);
@@ -158,6 +160,7 @@ export class GoogleService {
 
         // This historyId represents the exact state of the mailbox right now
         const realTimeHistoryId = profileResponse.data.historyId;
+        console.log(realTimeHistoryId);
 
         if (!realTimeHistoryId) {
           throw new Error(
