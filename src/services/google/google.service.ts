@@ -166,6 +166,7 @@ export class GoogleService {
 
           nextPageToken = response.data.nextPageToken;
         } while (nextPageToken);
+        console.log(usersEmails);
 
         const emailDetail = usersEmails.map(async (email) => {
           const res = await gmail.users.messages.get({
