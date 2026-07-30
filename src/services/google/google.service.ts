@@ -108,7 +108,7 @@ export class GoogleService {
 
         await this.authService.chnageuserHistoryId(
           historyEmail,
-          historyId !== null ? historyId : undefined,
+          realTimeHistoryId,
         );
 
         const emailDetail = userEmails.map(async (email) => {
@@ -170,7 +170,7 @@ export class GoogleService {
 
         await this.authService.chnageuserHistoryId(
           historyEmail,
-          historyId !== null ? historyId : undefined,
+          realTimeHistoryId,
         );
 
         const emailDetail = usersEmails.map(async (email) => {
