@@ -145,17 +145,30 @@ export class GoogleService {
             throw new BadRequestException('something went wrong: ' + error);
           }
 
-          await this.authService.chnageuserHistoryId(
-            historyEmail,
-            response.data.historyId ? response.data.historyId : undefined,
-          );
-
           if (response.data.history) {
             usersEmails.push(...response.data.history);
           }
 
           nextPageToken = response.data.nextPageToken;
         } while (nextPageToken);
+
+        const profileResponse = await gmail.users.getProfile({
+          userId: 'me',
+        });
+
+        // This historyId represents the exact state of the mailbox right now
+        const realTimeHistoryId = profileResponse.data.historyId;
+
+        if (!realTimeHistoryId) {
+          throw new Error(
+            'Could not retrieve current history ID from profile.',
+          );
+        }
+
+        await this.authService.chnageuserHistoryId(
+          historyEmail,
+          historyId !== null ? historyId : undefined,
+        );
 
         const emailDetail = usersEmails.map(async (email) => {
           const res = await gmail.users.messages.get({
