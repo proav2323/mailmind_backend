@@ -131,7 +131,8 @@ export class GoogleService {
       try {
         console.log('redirect-working');
         let nextPageToken: string | undefined | null = undefined;
-        const usersEmails: gmail_v1.Schema$History[] = [];
+        const usersEmails: gmail_v1.Schema$HistoryMessageAdded[] = [];
+        const historyRecords: gmail_v1.Schema$History[] = [];
         do {
           const response: GaxiosResponseWithHTTP2<gmail_v1.Schema$ListHistoryResponse> =
             await gmail.users.history.list({
@@ -147,7 +148,7 @@ export class GoogleService {
           }
 
           if (response.data.history) {
-            usersEmails.push(...response.data.history);
+            historyRecords.push(...response.data.history);
           }
 
           // This historyId represents the exact state of the mailbox right now
@@ -166,12 +167,14 @@ export class GoogleService {
 
           nextPageToken = response.data.nextPageToken;
         } while (nextPageToken);
-        console.log(usersEmails);
+        historyRecords.forEach((record) => {
+          usersEmails.push(...(record.messagesAdded ?? []));
+        });
 
         const emailDetail = usersEmails.map(async (email) => {
           const res = await gmail.users.messages.get({
             userId: 'me',
-            id: email.id ? email.id : undefined,
+            id: email.message?.id ? email.message.id : undefined,
             access_token: accessToken,
             auth: this.googleClient,
             key: process.env.GMAIL_API_KEY,
