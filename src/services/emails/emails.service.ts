@@ -44,6 +44,20 @@ export class EmailsService {
     { name: 'annoucements' },
     { name: 'finace' },
     { name: 'billing' },
+    { name: 'placement' },
+    { name: 'reminder' },
+    { name: 'fees' },
+    { name: 'scholarship' },
+    { name: 'timetable' },
+    { name: 'academic' },
+    { name: 'holiday' },
+    { name: 'club' },
+    { name: 'intership' },
+    { name: 'research' },
+    { name: 'Finace' },
+    { name: 'personal' },
+    { name: 'spam' },
+    { name: 'social' },
   ];
 
   async getUserEmailS(

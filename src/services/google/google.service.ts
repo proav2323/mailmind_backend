@@ -40,6 +40,16 @@ export class GoogleService {
     'class',
     'annoucements',
     'billing',
+    'placement',
+    'reminder',
+    'fees',
+    'scholarship',
+    'academic',
+    'holiday',
+    'club',
+    'intership',
+    'research',
+    'Finace',
   ];
 
   async getEmails(
