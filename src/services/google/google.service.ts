@@ -87,26 +87,28 @@ export class GoogleService {
           }
 
           const messages = response.data.messages || [];
-          const latesMessageId = messages[0].id;
-
-          const res: GaxiosResponseWithHTTP2<gmail_v1.Schema$Message> =
-            await gmail.users.messages.get({
-              userId: 'me',
-              id: latesMessageId ? latesMessageId : undefined,
-              access_token: accessToken,
-              auth: this.googleClient,
-              key: process.env.GMAIL_API_KEY,
-            });
-
-          await this.authService.chnageuserHistoryId(
-            historyEmail,
-            res.data.historyId ? res.data.historyId : undefined,
-          );
-
           userEmails.push(...messages);
 
           nextPageToken = response.data.nextPageToken;
         } while (nextPageToken);
+
+        const profileResponse = await gmail.users.getProfile({
+          userId: 'me',
+        });
+
+        // This historyId represents the exact state of the mailbox right now
+        const realTimeHistoryId = profileResponse.data.historyId;
+
+        if (!realTimeHistoryId) {
+          throw new Error(
+            'Could not retrieve current history ID from profile.',
+          );
+        }
+
+        await this.authService.chnageuserHistoryId(
+          historyEmail,
+          historyId !== null ? historyId : undefined,
+        );
 
         const emailDetail = userEmails.map(async (email) => {
           const res: GaxiosResponseWithHTTP2<gmail_v1.Schema$Message> =
