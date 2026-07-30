@@ -98,7 +98,6 @@ export class GoogleService {
 
         // This historyId represents the exact state of the mailbox right now
         const realTimeHistoryId = profileResponse.data.historyId;
-        console.log(realTimeHistoryId);
 
         if (!realTimeHistoryId) {
           throw new Error(
@@ -149,29 +148,23 @@ export class GoogleService {
           if (response.data.history) {
             usersEmails.push(...response.data.history);
           }
-          console.log(response.data.historyId);
+
+          // This historyId represents the exact state of the mailbox right now
+          const realTimeHistoryId = response.data.historyId;
+
+          if (!realTimeHistoryId) {
+            throw new Error(
+              'Could not retrieve current history ID from profile.',
+            );
+          }
+
+          await this.authService.chnageuserHistoryId(
+            historyEmail,
+            realTimeHistoryId,
+          );
 
           nextPageToken = response.data.nextPageToken;
         } while (nextPageToken);
-
-        const profileResponse = await gmail.users.getProfile({
-          userId: 'me',
-        });
-
-        // This historyId represents the exact state of the mailbox right now
-        const realTimeHistoryId = profileResponse.data.historyId;
-        console.log(realTimeHistoryId);
-
-        if (!realTimeHistoryId) {
-          throw new Error(
-            'Could not retrieve current history ID from profile.',
-          );
-        }
-
-        await this.authService.chnageuserHistoryId(
-          historyEmail,
-          realTimeHistoryId,
-        );
 
         const emailDetail = usersEmails.map(async (email) => {
           const res = await gmail.users.messages.get({
