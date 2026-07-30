@@ -86,27 +86,38 @@ export class GoogleService {
             throw new BadRequestException('something went wrong: ' + error);
           }
 
-          if (response.data.messages) {
-            userEmails.push(...response.data.messages);
-          }
+          const messages = response.data.messages || [];
+          const latesMessageId = messages[0].id;
+
+          const res: GaxiosResponseWithHTTP2<gmail_v1.Schema$Message> =
+            await gmail.users.messages.get({
+              userId: 'me',
+              id: latesMessageId ? latesMessageId : undefined,
+              access_token: accessToken,
+              auth: this.googleClient,
+              key: process.env.GMAIL_API_KEY,
+            });
+
+          await this.authService.chnageuserHistoryId(
+            historyEmail,
+            res.data.historyId ? res.data.historyId : undefined,
+          );
+
+          userEmails.push(...messages);
 
           nextPageToken = response.data.nextPageToken;
         } while (nextPageToken);
 
-        const emailDetail = userEmails.map(async (email, index) => {
-          const res = await gmail.users.messages.get({
-            userId: 'me',
-            id: email.id ? email.id : undefined,
-            access_token: accessToken,
-            auth: this.googleClient,
-            key: process.env.GMAIL_API_KEY,
-          });
-          if (index === userEmails.length - 1) {
-            await this.authService.chnageuserHistoryId(
-              historyEmail,
-              res.data.historyId ? res.data.historyId : undefined,
-            );
-          }
+        const emailDetail = userEmails.map(async (email) => {
+          const res: GaxiosResponseWithHTTP2<gmail_v1.Schema$Message> =
+            await gmail.users.messages.get({
+              userId: 'me',
+              id: email.id ? email.id : undefined,
+              access_token: accessToken,
+              auth: this.googleClient,
+              key: process.env.GMAIL_API_KEY,
+            });
+
           return res.data;
         });
         return Promise.all(emailDetail);
