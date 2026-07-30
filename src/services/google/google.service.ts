@@ -129,6 +129,7 @@ export class GoogleService {
       }
     } else {
       try {
+        console.log('redirect-working');
         let nextPageToken: string | undefined | null = undefined;
         const usersEmails: gmail_v1.Schema$History[] = [];
         do {
