@@ -20,12 +20,7 @@ import { EmailsWorkflowController } from './controllers/emails-workflow/emails-w
 import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [
-    RedisModule,
-    ScheduleModule.forRoot(),
-    WorkflowModule.forRoot(),
-    HttpModule,
-  ],
+  imports: [RedisModule, ScheduleModule.forRoot(), WorkflowModule, HttpModule],
   controllers: [
     AppController,
     AuthController,
