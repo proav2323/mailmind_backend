@@ -6,7 +6,6 @@ import { RedisService } from '../redis/redis.service';
 import { EcryptionService } from '../ecryption/ecryption.service';
 import { GoogleService } from '../google/google.service';
 import { generateId } from 'src/utils/generateId';
-// import { start } from '@workflow/api';
 
 @Injectable()
 export class EmailsService {
@@ -166,7 +165,7 @@ export class EmailsService {
       userId: user.id,
     };
 
-    await this.googleService.emailWorkflow(body);
+    await this.emailWorkflow(body);
 
     return 'success';
   }
@@ -405,5 +404,50 @@ export class EmailsService {
     });
 
     return Promise.all(map);
+  }
+
+  // add workflows whe  official docs are out
+
+  async emailWorkflow(body: {
+    accessToken: string;
+    idToken: string;
+    refreshToken: string;
+    scope: string;
+    year: string;
+    historyId: string | null;
+    email: string;
+    categories: { name: string; id: string; userId: string }[];
+    userId: string;
+  }) {
+    // 'use workflow';
+
+    // send socket to loading emails if there is no emails in our database
+
+    const {
+      accessToken,
+      idToken,
+      refreshToken,
+      scope,
+      year,
+      historyId,
+      email,
+      categories,
+      userId,
+    } = body;
+    console.log('workflow-running');
+
+    await this.getEmailsWorkflow(
+      accessToken,
+      idToken,
+      refreshToken,
+      year,
+      historyId,
+      email,
+      scope,
+      categories,
+      userId,
+    );
+
+    // add ocketconfiguartion for realtime chnages an send laoding finishes
   }
 }

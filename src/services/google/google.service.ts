@@ -7,14 +7,10 @@ import {
 import { gmail_v1, google } from 'googleapis';
 import { AuthService } from '../auth/auth.service';
 import { GaxiosResponseWithHTTP2 } from 'googleapis-common';
-import { EmailsService } from '../emails/emails.service';
 
 @Injectable()
 export class GoogleService {
-  constructor(
-    private authService: AuthService,
-    private emailsService: EmailsService,
-  ) {}
+  constructor(private authService: AuthService) {}
   googleClient = new google.auth.OAuth2({
     client_id: process.env.GOOGLE_CLIENT_ID,
     clientId: process.env.GOOGLE_CLIENT_ID,
@@ -396,50 +392,5 @@ export class GoogleService {
     }
 
     return newEmails;
-  }
-
-  // add workflows whe  official docs are out
-
-  async emailWorkflow(body: {
-    accessToken: string;
-    idToken: string;
-    refreshToken: string;
-    scope: string;
-    year: string;
-    historyId: string | null;
-    email: string;
-    categories: { name: string; id: string; userId: string }[];
-    userId: string;
-  }) {
-    // 'use workflow';
-
-    // send socket to loading emails if there is no emails in our database
-
-    const {
-      accessToken,
-      idToken,
-      refreshToken,
-      scope,
-      year,
-      historyId,
-      email,
-      categories,
-      userId,
-    } = body;
-    console.log('workflow-running');
-
-    await this.emailsService.getEmailsWorkflow(
-      accessToken,
-      idToken,
-      refreshToken,
-      year,
-      historyId,
-      email,
-      scope,
-      categories,
-      userId,
-    );
-
-    // add ocketconfiguartion for realtime chnages an send laoding finishes
   }
 }

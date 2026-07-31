@@ -1,12 +1,12 @@
 import 'dotenv/config';
 import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { BadRequestException } from '@nestjs/common';
 import { generateId } from '../../utils/generateId';
 import { Response } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
 import { EcryptionService } from '../ecryption/ecryption.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
