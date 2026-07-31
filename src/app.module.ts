@@ -13,10 +13,25 @@ import { EcryptionService } from './services/ecryption/ecryption.service';
 import { GoogleService } from './services/google/google.service';
 import { SocketGateway } from './gateways/socket/socket.gateway';
 import { PubSubService } from './services/pub-sub/pub-sub.service';
+import { ScheduleModule } from '@nestjs/schedule';
+import { CronService } from './services/cron/cron.service';
+import { WorkflowModule } from '@workflow/nest';
+import { EmailsWorkflowController } from './controllers/emails-workflow/emails-workflow.controller';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [RedisModule],
-  controllers: [AppController, AuthController, EmailsController],
+  imports: [
+    RedisModule,
+    ScheduleModule.forRoot(),
+    WorkflowModule.forRoot(),
+    HttpModule,
+  ],
+  controllers: [
+    AppController,
+    AuthController,
+    EmailsController,
+    EmailsWorkflowController,
+  ],
   providers: [
     AppService,
     AuthService,
@@ -28,6 +43,7 @@ import { PubSubService } from './services/pub-sub/pub-sub.service';
     GoogleService,
     SocketGateway,
     PubSubService,
+    CronService,
   ],
 })
 export class AppModule {}

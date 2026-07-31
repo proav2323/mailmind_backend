@@ -8,7 +8,7 @@ export class EmailsController {
   async getAllEmails(
     @Req() req: Request,
     @Headers() headers: Record<string, string>,
-  ): Promise<(undefined | boolean[])[]> {
+  ): Promise<string> {
     return await this.emailService.getUserEmailS(req, headers);
   }
 }

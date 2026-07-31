@@ -6,6 +6,8 @@ import { RedisService } from '../redis/redis.service';
 import { EcryptionService } from '../ecryption/ecryption.service';
 import { GoogleService } from '../google/google.service';
 import { generateId } from 'src/utils/generateId';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class EmailsService {
@@ -16,6 +18,7 @@ export class EmailsService {
     private redisService: RedisService,
     private ecryption: EcryptionService,
     private googleService: GoogleService,
+    private httpService: HttpService,
   ) {}
 
   categroies = [
@@ -63,7 +66,7 @@ export class EmailsService {
   async getUserEmailS(
     req: Request,
     headers: Record<string, string>,
-  ): Promise<(undefined | boolean[])[]> {
+  ): Promise<string> {
     const token = (req as Request & { cookies?: Record<string, string> })
       .cookies?.token;
     let secondToken: string | undefined = undefined;
@@ -153,18 +156,59 @@ export class EmailsService {
       throw new BadRequestException('no access token and id token found');
     }
 
+    const baseUrl = process.env.VERCEL_PROJECT_URL || 'http://localhost:3000';
+    const workflowUrl = `${baseUrl}/workflows/emails`;
+
+    const res = await firstValueFrom(
+      this.httpService.post(
+        workflowUrl,
+        {
+          accessToken,
+          idToken,
+          refreshToken: user.refreshToken,
+          scope: decoded.scope,
+          year,
+          historyId: user.historyId,
+          email: user.email,
+          categories: user.categories,
+          userId: user.id,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.WORKFLOW_SECRET}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      ),
+    );
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    return (res.data.workflowRunId as string) ?? '';
+  }
+
+  async getEmailsWorkflow(
+    accessToken: string,
+    idToken: string,
+    refreshToken: string,
+    year: string,
+    historyId: string | null,
+    email: string,
+    scope: string,
+    categories: { name: string; id: string; userId: string }[],
+    userId: string,
+  ) {
     const res = await this.googleService.getEmails(
       accessToken,
       idToken,
-      user.refreshToken,
-      decoded.scope,
+      refreshToken,
+      scope,
       year,
-      user.historyId === undefined || user.historyId === null ? true : false,
-      user.email,
-      user.historyId,
-    ); // when user login again after 1 day, loop throught emails to chnage thir priority for user's new day
+      historyId === undefined || historyId === null ? true : false,
+      email,
+      historyId,
+    );
 
-    const newUserCategories = user.categories.map((value) => {
+    const newUserCategories = categories.map((value) => {
       return { name: value.name };
     });
 
@@ -230,7 +274,7 @@ export class EmailsService {
 
       const data = await this.prisma.eMAILS.create({
         data: {
-          userId: user.id,
+          userId: userId,
           body: value.body,
           gmailId: value.id!,
           id: value.myGivenId,
@@ -342,5 +386,39 @@ export class EmailsService {
     else if (score > 30 && score < 50) return 'Meduim';
     else if (score > 50 && score < 80) return 'High';
     else return 'Critical';
+  }
+
+  async changePriorities() {
+    const data = await this.prisma.eMAILS.findMany({
+      where: { priority: { in: ['Low', 'High', 'Critical', 'Meduim'] } },
+    });
+
+    const map = data.map(async (value) => {
+      const score = this.getEmailPriorityScore(
+        value.importance,
+        value.urgency,
+        value.senderImportance,
+        value.deadline
+          ? value.deadline.toLocaleDateString('en-CA')
+          : new Date().toLocaleDateString("'en-CA'"),
+        value.requiresAction,
+        value.isRead,
+        value.isCompleted,
+      );
+
+      const priority = this.getEmailPrority(
+        score,
+        value.deadline
+          ? value.deadline.toLocaleDateString('en-CA')
+          : new Date().toLocaleDateString("'en-CA'"),
+      );
+
+      return await this.prisma.eMAILS.update({
+        where: { id: value.id },
+        data: { priority: priority },
+      });
+    });
+
+    return Promise.all(map);
   }
 }
