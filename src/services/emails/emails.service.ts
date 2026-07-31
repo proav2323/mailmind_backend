@@ -6,8 +6,7 @@ import { RedisService } from '../redis/redis.service';
 import { EcryptionService } from '../ecryption/ecryption.service';
 import { GoogleService } from '../google/google.service';
 import { generateId } from 'src/utils/generateId';
-import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
+// import { start } from '@workflow/api';
 
 @Injectable()
 export class EmailsService {
@@ -18,7 +17,6 @@ export class EmailsService {
     private redisService: RedisService,
     private ecryption: EcryptionService,
     private googleService: GoogleService,
-    private httpService: HttpService,
   ) {}
 
   categroies = [
@@ -156,34 +154,21 @@ export class EmailsService {
       throw new BadRequestException('no access token and id token found');
     }
 
-    const baseUrl = process.env.VERCEL_PROJECT_URL || 'http://localhost:3000';
-    const workflowUrl = `${baseUrl}/workflows/emails`;
+    const body = {
+      accessToken,
+      idToken,
+      refreshToken: user.refreshToken,
+      scope: decoded.scope,
+      year,
+      historyId: user.historyId,
+      email: user.email,
+      categories: user.categories,
+      userId: user.id,
+    };
 
-    const res = await firstValueFrom(
-      this.httpService.post(
-        workflowUrl,
-        {
-          accessToken,
-          idToken,
-          refreshToken: user.refreshToken,
-          scope: decoded.scope,
-          year,
-          historyId: user.historyId,
-          email: user.email,
-          categories: user.categories,
-          userId: user.id,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.WORKFLOW_SECRET}`,
-            'Content-Type': 'application/json',
-          },
-        },
-      ),
-    );
+    await this.googleService.emailWorkflow(body);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    return (res.data.workflowRunId as string) ?? '';
+    return 'success';
   }
 
   async getEmailsWorkflow(

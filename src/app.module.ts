@@ -15,18 +15,11 @@ import { SocketGateway } from './gateways/socket/socket.gateway';
 import { PubSubService } from './services/pub-sub/pub-sub.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronService } from './services/cron/cron.service';
-import { WorkflowModule } from '@workflow/nest';
-import { EmailsWorkflowController } from './controllers/emails-workflow/emails-workflow.controller';
 import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [RedisModule, ScheduleModule.forRoot(), WorkflowModule, HttpModule],
-  controllers: [
-    AppController,
-    AuthController,
-    EmailsController,
-    EmailsWorkflowController,
-  ],
+  imports: [RedisModule, ScheduleModule.forRoot(), HttpModule],
+  controllers: [AppController, AuthController, EmailsController],
   providers: [
     AppService,
     AuthService,
