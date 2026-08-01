@@ -344,19 +344,19 @@ export class EmailsService {
     todaysDate.setHours(0, 0, 0, 0);
     deadlineDate.setHours(0, 0, 0, 0);
 
-    const diffInMs = Math.abs(deadlineDate.getTime() - todaysDate.getTime());
+    const diffInMs = deadlineDate.getTime() - todaysDate.getTime();
 
     const days = Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
 
-    if (days <= 0) return 30;
+    if (days >= 0 && days <= 1) return 30;
 
     if (days == 1) return 25;
 
     if (days == 2) return 20;
 
-    if (days <= 5) return 15;
+    if (days <= 5 && days > 0) return 15;
 
-    if (days <= 10) return 10;
+    if (days <= 10 && days > 0) return 10;
 
     if (days < 0) return 0;
 
@@ -367,9 +367,9 @@ export class EmailsService {
     if (this.deadlineScore(deadline) === 0) {
       return 'Expired';
     }
-    if (score > 0 && score < 30) return 'Low';
-    else if (score > 30 && score < 50) return 'Meduim';
-    else if (score > 50 && score < 80) return 'High';
+    if (score > 0 && score <= 30) return 'Low';
+    else if (score > 30 && score <= 50) return 'Meduim';
+    else if (score > 50 && score <= 80) return 'High';
     else return 'Critical';
   }
 
