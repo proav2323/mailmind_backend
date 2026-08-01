@@ -47,6 +47,7 @@ model EMAILS {
   urgency Int
   senderImportance Int
   isCompleted Boolean
+  tags       String[]
   User       USER     @relation(fields: [userId], references: [id])
   attachments ATTACHMENTS[]
 }

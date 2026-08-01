@@ -270,6 +270,7 @@ export class EmailsService {
           subject: aiData.subject as string,
           category: aiData.category as string,
           aiPriority: aiData.priority as string,
+          tags: aiData.tags as string[],
           GmailSubject: value.headers.subject?.value
             ? value.headers.subject.value
             : '',
