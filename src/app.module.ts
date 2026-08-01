@@ -13,13 +13,18 @@ import { EcryptionService } from './services/ecryption/ecryption.service';
 import { GoogleService } from './services/google/google.service';
 import { SocketGateway } from './gateways/socket/socket.gateway';
 import { PubSubService } from './services/pub-sub/pub-sub.service';
-import { ScheduleModule } from '@nestjs/schedule';
 import { CronService } from './services/cron/cron.service';
 import { HttpModule } from '@nestjs/axios';
+import { CronController } from './controllers/cron/cron.controller';
 
 @Module({
-  imports: [RedisModule, ScheduleModule.forRoot(), HttpModule],
-  controllers: [AppController, AuthController, EmailsController],
+  imports: [RedisModule, HttpModule],
+  controllers: [
+    AppController,
+    AuthController,
+    EmailsController,
+    CronController,
+  ],
   providers: [
     AppService,
     AuthService,
