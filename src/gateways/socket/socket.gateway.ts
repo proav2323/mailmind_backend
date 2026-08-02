@@ -39,6 +39,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
       token === 'null'
     ) {
       client.disconnect();
+      return;
     }
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const decoded = this.JWT.verify(token);
