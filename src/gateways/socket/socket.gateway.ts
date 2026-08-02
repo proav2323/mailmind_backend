@@ -38,6 +38,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     await client.leave(decoded.email);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     await client.join(decoded.email);
+    console.log('client connected');
   }
 
   async handleDisconnect(client: Socket) {
@@ -56,5 +57,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     await client.leave(decoded.email);
     client.disconnect();
+    console.log('client disconnected');
   }
 }
