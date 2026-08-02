@@ -25,11 +25,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const token =
       (client.handshake.auth?.token as string) ||
       (client.handshake.headers.authorization as string);
-    console.log(
-      token,
-      client.handshake.auth,
-      client.handshake.headers.authorization,
-    );
     if (
       !token ||
       token === undefined ||
