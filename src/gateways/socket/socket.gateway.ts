@@ -25,10 +25,21 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const token =
       (client.handshake.auth?.token as string) ||
       (client.handshake.headers.authorization as string);
-    if (!token) {
+    console.log(
+      token,
+      client.handshake.auth,
+      client.handshake.headers.authorization,
+    );
+    if (
+      !token ||
+      token === undefined ||
+      token === null ||
+      token === '' ||
+      token === 'undefined' ||
+      token === 'null'
+    ) {
       client.disconnect();
     }
-    console.log(token);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const decoded = this.JWT.verify(token);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
