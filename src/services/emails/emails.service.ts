@@ -5,7 +5,8 @@ import { AuthService } from '../auth/auth.service';
 import { RedisService } from '../redis/redis.service';
 import { EcryptionService } from '../ecryption/ecryption.service';
 import { GoogleService } from '../google/google.service';
-import { generateId } from 'src/utils/generateId';
+import { SocketGateway } from '../../gateways/socket/socket.gateway';
+import { generateId } from '../../utils/generateId';
 
 @Injectable()
 export class EmailsService {
@@ -16,6 +17,7 @@ export class EmailsService {
     private redisService: RedisService,
     private ecryption: EcryptionService,
     private googleService: GoogleService,
+    private socketGateway: SocketGateway,
   ) {}
 
   categroies = [
@@ -437,6 +439,18 @@ export class EmailsService {
     } = body;
     console.log('workflow-running');
 
+    const user = await this.prisma.uSER.findUnique({
+      where: { email: email },
+      include: { emails: {} },
+    });
+
+    if (!user) {
+      return;
+    }
+    if (user.emails.length === 0) {
+      this.socketGateway.sendUserEmailLoading(email);
+    }
+
     await this.getEmailsWorkflow(
       accessToken,
       idToken,
@@ -449,6 +463,6 @@ export class EmailsService {
       userId,
     );
 
-    // add ocketconfiguartion for realtime chnages an send laoding finishes
+    this.socketGateway.sendUserEmailMsg(email);
   }
 }
