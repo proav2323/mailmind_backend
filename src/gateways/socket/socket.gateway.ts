@@ -52,20 +52,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   async handleDisconnect(client: Socket) {
-    const token =
-      (client.handshake.auth?.token as string) ||
-      (client.handshake.headers.authorization as string);
-    if (!token) {
-      client.disconnect();
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const decoded = this.JWT.verify(token);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    if (decoded && decoded.email) {
-      client.disconnect();
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-    await client.leave(decoded.email);
     client.disconnect();
     console.log('client disconnected');
   }
