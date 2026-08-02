@@ -42,7 +42,9 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return;
     }
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const decoded = this.JWT.verify(token);
+    const decoded = this.JWT.verify(token, {
+      secret: process.env.JWT_SECRET,
+    });
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (decoded && decoded.email) {
       client.disconnect();
