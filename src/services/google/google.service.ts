@@ -150,6 +150,7 @@ export class GoogleService {
               maxResults: 100, // Maximum per page allowed by Google is 100 but taking to long time
               pageToken: nextPageToken,
               startHistoryId: historyId === null ? undefined : historyId,
+              historyTypes: ['messageAdded'],
             });
 
           if (!response.ok || response.status === 500) {
@@ -180,6 +181,8 @@ export class GoogleService {
         historyRecords.forEach((record) => {
           usersEmails.push(...(record.messagesAdded ?? []));
         });
+
+        console.log(usersEmails);
 
         const emailDetail = usersEmails.map(async (email) => {
           const res = await gmail.users.messages.get({
