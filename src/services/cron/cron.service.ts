@@ -18,7 +18,7 @@ export class CronService {
       throw new UnauthorizedException('Invalid cron secret');
     }
     console.log('running cron job to change email priorities...');
-    this.httpService.get('https://mailmind-backend.onrender.com/cron/sync', {
+    this.httpService.get('https://mailmind-backend.onrender.com/crons/sync', {
       headers: { authorization: `Bearer ${process.env.CRON_SECRET}` },
     });
     await this.prismaService.uSER.create({
