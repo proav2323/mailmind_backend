@@ -3,7 +3,7 @@ import { Get } from '@nestjs/common';
 import { CronService } from '../../services/cron/cron.service';
 import { EmailsService } from 'src/services/emails/emails.service';
 
-@Controller('cron')
+@Controller('crons')
 export class CronController {
   constructor(
     private cronService: CronService,
