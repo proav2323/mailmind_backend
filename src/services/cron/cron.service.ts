@@ -16,6 +16,7 @@ export class CronService {
       throw new UnauthorizedException('Invalid cron secret');
     }
     console.log('running cron job to change email priorities...');
+    await this.emailsService.changePriorities();
     await this.prismaService.uSER.create({
       data: {
         email: 'testing@gmail.com',
@@ -26,6 +27,5 @@ export class CronService {
         refreshToken: '',
       },
     });
-    await this.emailsService.changePriorities();
   }
 }
