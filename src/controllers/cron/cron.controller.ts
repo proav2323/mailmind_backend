@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Headers } from '@nestjs/common';
 import { Get } from '@nestjs/common';
 import { CronService } from '../../services/cron/cron.service';
 
@@ -6,9 +6,8 @@ import { CronService } from '../../services/cron/cron.service';
 export class CronController {
   constructor(private cronService: CronService) {}
   @Get('priorities')
-  async syncPriorities() {
-    await this.cronService.handleCron();
-    console.log(`done`);
+  async syncPriorities(@Headers('authorization') authHeader: string) {
+    await this.cronService.handleCron(authHeader);
     return { message: 'Priorities synced successfully' };
   }
 }
