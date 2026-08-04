@@ -1,7 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { EmailsService } from '../emails/emails.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { generateId } from 'src/utils/generateId';
 import { HttpService } from '@nestjs/axios';
 
 @Injectable()
@@ -12,7 +11,7 @@ export class CronService {
     private httpService: HttpService,
   ) {}
 
-  async handleCron(authHeader: string) {
+  handleCron(authHeader: string) {
     const cronSecret = process.env.CRON_SECRET;
     if (authHeader !== `Bearer ${cronSecret}`) {
       throw new UnauthorizedException('Invalid cron secret');
