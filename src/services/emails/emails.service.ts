@@ -227,6 +227,7 @@ export class EmailsService {
     const aiRes = await this.workflowClinet.trigger({
       url: `${process.env.AI_BACKEND_URL}/email`,
       body: { data: JSON.stringify(response), userId: userId },
+      retries: 0,
     });
     this.SOCKET.sendUserEmailLoading(email);
     console.log(aiRes.workflowRunId);
