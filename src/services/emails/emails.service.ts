@@ -224,25 +224,12 @@ export class EmailsService {
       };
     });
 
-    const aiRes = await fetch(`${process.env.AI_BACKEND_URL}/email`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.QSTASH_TOKEN}`,
-      },
-      body: JSON.stringify({ data: JSON.stringify(response), userId: userId }),
+    const aiRes = await this.workflowClinet.trigger({
+      url: `${process.env.AI_BACKEND_URL}/email`,
+      body: { data: JSON.stringify(response), userId: userId },
     });
-
-    if (!aiRes.ok || aiRes.status === 500) {
-      const error = await aiRes.text();
-      console.log(error);
-      throw new BadRequestException('error occured: ' + error);
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const data = await aiRes.json();
     this.SOCKET.sendUserEmailLoading(email);
-    console.log(data);
+    console.log(aiRes.workflowRunId);
     return 'done';
   }
 
