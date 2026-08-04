@@ -171,14 +171,9 @@ export class EmailsService {
       userId: user.id,
     };
 
-    const { workflowRunId } = await this.workflowClinet.trigger({
-      url: `${process.env.NODE_ENV === 'production' ? 'https://mailmind-backend.vercel.app/workflow/emails' : 'http://localhost:3000/workflow/emails'}`,
-      body: body,
-      headers: { 'Content-Type': 'application/json' },
-      retries: 0,
-    });
+    await this.emailWorkflow(body);
 
-    return { status: 'success', id: workflowRunId };
+    return { status: 'success', id: '' };
   }
 
   private async getEmailsWorkflow(
