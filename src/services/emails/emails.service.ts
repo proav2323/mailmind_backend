@@ -175,7 +175,7 @@ export class EmailsService {
     };
 
     const { workflowRunId } = await this.workflowClinet.trigger({
-      url: `${process.env.BASE_URL}/workflow/emails`,
+      url: `${process.env.NODE_ENV === 'production' ? 'https://mailmind-backend.vercel.app/workflow/emails' : 'http://localhost:3000/workflow/emails'}`,
       body: body,
       headers: { 'Content-Type': 'application/json' },
       retries: 3,
@@ -443,6 +443,7 @@ export class EmailsService {
       categories,
       userId,
     } = body;
+    this.socketGateway.sendUserEmailLoading(email);
 
     const user = await this.prisma.uSER.findUnique({
       where: { email: email },
@@ -450,10 +451,8 @@ export class EmailsService {
     });
 
     if (!user) {
+      this.socketGateway.sendUserEmailMsg(email);
       return;
-    }
-    if (user.emails.length === 0) {
-      this.socketGateway.sendUserEmailLoading(email);
     }
 
     await this.getEmailsWorkflow(
