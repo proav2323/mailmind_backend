@@ -22,16 +22,13 @@ export class WorkflowController {
       scope: string;
       categories: { name: string; id: string; userId: string }[];
       userId: string;
-    }>(
-      async (context) => {
-        const payload = context.requestPayload;
+    }>(async (context) => {
+      const payload = context.requestPayload;
+      await context.run('intial step', async () => {
         await this.emailsService.emailWorkflow(payload);
-        return { message: 'Email workflow created successfully' };
-      },
-      {
-        qstashClient: { devMode: true },
-      },
-    );
+      });
+      return { message: 'Email workflow created successfully' };
+    });
 
     // 2. Dispatch NestJS's raw request and response object into the Upstash SDK handler
     await handler(req, res, next);

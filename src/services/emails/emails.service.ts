@@ -23,8 +23,7 @@ export class EmailsService {
 
   private workflowClinet = new Client({
     token: process.env.QSTASH_TOKEN,
-    baseUrl: process.env.QSTASH_URL,
-    devMode: true,
+    baseUrl: process.env.QSTASH_URL ?? 'https://qstash-eu-central-1.upstash.io',
   });
 
   categroies = [
