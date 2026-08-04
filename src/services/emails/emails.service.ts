@@ -5,7 +5,6 @@ import { AuthService } from '../auth/auth.service';
 import { RedisService } from '../redis/redis.service';
 import { EcryptionService } from '../ecryption/ecryption.service';
 import { GoogleService } from '../google/google.service';
-import { SocketGateway } from '../../gateways/socket/socket.gateway';
 import { generateId } from '../../utils/generateId';
 import { Client } from '@upstash/workflow';
 
@@ -18,7 +17,6 @@ export class EmailsService {
     private redisService: RedisService,
     private ecryption: EcryptionService,
     private googleService: GoogleService,
-    private socketGateway: SocketGateway,
   ) {}
 
   private workflowClinet = new Client({
@@ -442,7 +440,6 @@ export class EmailsService {
       categories,
       userId,
     } = body;
-    this.socketGateway.sendUserEmailLoading(email);
 
     const user = await this.prisma.uSER.findUnique({
       where: { email: email },
@@ -450,7 +447,6 @@ export class EmailsService {
     });
 
     if (!user) {
-      this.socketGateway.sendUserEmailMsg(email);
       return;
     }
 
@@ -465,7 +461,5 @@ export class EmailsService {
       categories,
       userId,
     );
-
-    this.socketGateway.sendUserEmailMsg(email);
   }
 }
