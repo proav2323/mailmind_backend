@@ -16,6 +16,7 @@ import { PubSubService } from './services/pub-sub/pub-sub.service';
 import { CronService } from './services/cron/cron.service';
 import { HttpModule } from '@nestjs/axios';
 import { CronController } from './controllers/cron/cron.controller';
+import { WorkflowController } from './controllers/workflow/workflow.controller';
 
 @Module({
   imports: [RedisModule, HttpModule],
@@ -24,6 +25,7 @@ import { CronController } from './controllers/cron/cron.controller';
     AuthController,
     EmailsController,
     CronController,
+    WorkflowController,
   ],
   providers: [
     AppService,

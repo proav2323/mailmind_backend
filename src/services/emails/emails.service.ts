@@ -7,6 +7,7 @@ import { EcryptionService } from '../ecryption/ecryption.service';
 import { GoogleService } from '../google/google.service';
 import { SocketGateway } from '../../gateways/socket/socket.gateway';
 import { generateId } from '../../utils/generateId';
+import { Client } from '@upstash/workflow';
 
 @Injectable()
 export class EmailsService {
@@ -19,6 +20,12 @@ export class EmailsService {
     private googleService: GoogleService,
     private socketGateway: SocketGateway,
   ) {}
+
+  private workflowClinet = new Client({
+    token: process.env.QSTASH_TOKEN,
+    baseUrl: process.env.QSTASH_URL,
+    devMode: true,
+  });
 
   categroies = [
     { name: 'assignment' },
@@ -65,7 +72,7 @@ export class EmailsService {
   async getUserEmailS(
     req: Request,
     headers: Record<string, string>,
-  ): Promise<string> {
+  ): Promise<{ status: string; id: string }> {
     const token = (req as Request & { cookies?: Record<string, string> })
       .cookies?.token;
     let secondToken: string | undefined = undefined;
@@ -167,12 +174,17 @@ export class EmailsService {
       userId: user.id,
     };
 
-    await this.emailWorkflow(body);
+    const { workflowRunId } = await this.workflowClinet.trigger({
+      url: `${process.env.BASE_URL}/workflow/emails`,
+      body: body,
+      headers: { 'Content-Type': 'application/json' },
+      retries: 3,
+    });
 
-    return 'success';
+    return { status: 'success', id: workflowRunId };
   }
 
-  async getEmailsWorkflow(
+  private async getEmailsWorkflow(
     accessToken: string,
     idToken: string,
     refreshToken: string,
@@ -409,8 +421,6 @@ export class EmailsService {
     return Promise.all(map);
   }
 
-  // add workflows whe  official docs are out
-
   async emailWorkflow(body: {
     accessToken: string;
     idToken: string;
@@ -422,10 +432,6 @@ export class EmailsService {
     categories: { name: string; id: string; userId: string }[];
     userId: string;
   }) {
-    // 'use workflow';
-
-    // send socket to loading emails if there is no emails in our database
-
     const {
       accessToken,
       idToken,
@@ -437,7 +443,6 @@ export class EmailsService {
       categories,
       userId,
     } = body;
-    console.log('workflow-running');
 
     const user = await this.prisma.uSER.findUnique({
       where: { email: email },
