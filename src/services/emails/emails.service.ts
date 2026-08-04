@@ -175,7 +175,7 @@ export class EmailsService {
       url: `${process.env.NODE_ENV === 'production' ? 'https://mailmind-backend.vercel.app/workflow/emails' : 'http://localhost:3000/workflow/emails'}`,
       body: body,
       headers: { 'Content-Type': 'application/json' },
-      retries: 1,
+      retries: 0,
     });
 
     return { status: 'success', id: workflowRunId };
