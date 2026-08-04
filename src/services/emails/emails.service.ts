@@ -7,6 +7,8 @@ import { EcryptionService } from '../ecryption/ecryption.service';
 import { GoogleService } from '../google/google.service';
 import { generateId } from '../../utils/generateId';
 import { Client } from '@upstash/workflow';
+import { gmail_v1 } from 'googleapis';
+import { SocketGateway } from '../../gateways/socket/socket.gateway';
 
 @Injectable()
 export class EmailsService {
@@ -17,6 +19,7 @@ export class EmailsService {
     private redisService: RedisService,
     private ecryption: EcryptionService,
     private googleService: GoogleService,
+    private SOCKET: SocketGateway,
   ) {}
 
   private workflowClinet = new Client({
@@ -223,8 +226,11 @@ export class EmailsService {
 
     const aiRes = await fetch(`${process.env.AI_BACKEND_URL}/email`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ data: JSON.stringify(response) }),
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.QSTASH_TOKEN}`,
+      },
+      body: JSON.stringify({ data: JSON.stringify(response), userId: userId }),
     });
 
     if (!aiRes.ok || aiRes.status === 500) {
@@ -234,12 +240,56 @@ export class EmailsService {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const aiData = await aiRes.json();
-    // @typescript-eslint/no-unsafe-member-access
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const aiArrays = aiData.data as Record<string, unknown>[];
+    const data = await aiRes.json();
+    this.SOCKET.sendUserEmailLoading(email);
+    console.log(data);
+    return 'done';
+  }
 
-    const data = response.map(async (value) => {
+  async storeEmailDataToDatabase(
+    response: {
+      classificationLabelValues?:
+        gmail_v1.Schema$ClassificationLabelValue[] | undefined;
+      historyId?: string | null;
+      id?: string | null;
+      internalDate?: string | null;
+      labelIds?: string[] | null;
+      payload?: gmail_v1.Schema$MessagePart;
+      raw?: string | null;
+      sizeEstimate?: number | null;
+      snippet?: string | null;
+      threadId?: string | null;
+      body: {
+        text: string;
+        html: string;
+      };
+      attachments: {
+        filename: string;
+        mimeType: string;
+        attachmentId: string;
+      }[];
+      headers: {
+        subject: gmail_v1.Schema$MessagePartHeader | undefined;
+        deliveredTo: gmail_v1.Schema$MessagePartHeader | undefined;
+        from: gmail_v1.Schema$MessagePartHeader | undefined;
+        recievedAt: gmail_v1.Schema$MessagePartHeader | undefined;
+      };
+      myGivenId: string;
+      categories: (
+        | {
+            name: string;
+            desc?: string | undefined;
+          }
+        | {
+            name: string;
+            desc: string;
+          }
+      )[];
+    }[],
+    aiArrays: Record<string, unknown>[],
+    userId: string,
+  ) {
+    const data = response.map(async (value, index) => {
       const email = await this.prisma.eMAILS.findUnique({
         where: { gmailId: value.id! },
       });
@@ -308,6 +358,15 @@ export class EmailsService {
             },
           },
         });
+        if (index === response.length - 1) {
+          const user = await this.prisma.uSER.findUnique({
+            where: { id: userId },
+          });
+          if (!user) {
+            return true;
+          }
+          this.SOCKET.sendUserEmailMsg(user.email);
+        }
         return true;
       });
       return Promise.all(attach);
