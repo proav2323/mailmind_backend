@@ -18,6 +18,7 @@ export class CronController {
   @Get('sync')
   async syncPrioritiesRealtime(@Headers('authorization') authHeader: string) {
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+      console.log('invalid cron secret');
       throw new UnauthorizedException('Invalid cron secret');
     }
     await this.emailsService.changePriorities();

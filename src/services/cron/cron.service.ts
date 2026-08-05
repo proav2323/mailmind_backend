@@ -14,9 +14,10 @@ export class CronService {
   handleCron(authHeader: string) {
     const cronSecret = process.env.CRON_SECRET;
     if (authHeader !== `Bearer ${cronSecret}`) {
+      console.log('invalid cron secret');
       throw new UnauthorizedException('Invalid cron secret');
     }
-    this.httpService.get('https://mailmind-backend.onrender.com/crons/sync', {
+    this.httpService.get('https://mailmind-backend.vercel.app/crons/sync', {
       headers: { authorization: `Bearer ${process.env.CRON_SECRET}` },
     });
   }
