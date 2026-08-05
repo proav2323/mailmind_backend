@@ -220,7 +220,7 @@ export class EmailsService {
         headers: headersImpData,
         myGivenId: generateId(8),
         categories: this.categroies,
-        ...value,
+        id: value.id,
       };
     });
     const exc = await this.workflowClinet.trigger({
@@ -237,17 +237,7 @@ export class EmailsService {
 
   async storeEmailDataToDatabase(
     response: {
-      classificationLabelValues?:
-        gmail_v1.Schema$ClassificationLabelValue[] | undefined;
-      historyId?: string | null;
       id?: string | null;
-      internalDate?: string | null;
-      labelIds?: string[] | null;
-      payload?: gmail_v1.Schema$MessagePart;
-      raw?: string | null;
-      sizeEstimate?: number | null;
-      snippet?: string | null;
-      threadId?: string | null;
       body: {
         text: string;
         html: string;

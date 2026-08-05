@@ -20,17 +20,7 @@ export class EmailsController {
       data: Record<string, unknown>[];
       userId: string;
       emails: {
-        classificationLabelValues?:
-          gmail_v1.Schema$ClassificationLabelValue[] | undefined;
-        historyId?: string | null;
         id?: string | null;
-        internalDate?: string | null;
-        labelIds?: string[] | null;
-        payload?: gmail_v1.Schema$MessagePart;
-        raw?: string | null;
-        sizeEstimate?: number | null;
-        snippet?: string | null;
-        threadId?: string | null;
         body: {
           text: string;
           html: string;
