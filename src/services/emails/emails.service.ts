@@ -223,12 +223,13 @@ export class EmailsService {
         ...value,
       };
     });
-
-    const aiRes = await fetch(`${process.env.AI_BACKEND_URL}/email`, {
-      method: 'POST',
-      body: JSON.stringify({ data: JSON.stringify(response), userId: userId }),
+    const exc = await this.workflowClinet.trigger({
+      url: `${process.env.AI_BACKEND_URL}/email`,
+      body: { data: JSON.stringify(response), userId: userId },
       headers: { 'Content-Type': 'application/json' },
     });
+
+    console.log(exc.workflowRunId);
     this.SOCKET.sendUserEmailLoading(email);
     return 'done';
   }
