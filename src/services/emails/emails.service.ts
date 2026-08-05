@@ -227,6 +227,7 @@ export class EmailsService {
       url: `${process.env.AI_BACKEND_URL}/email`,
       body: { data: JSON.stringify(response), userId: userId },
       headers: { 'Content-Type': 'application/json' },
+      retries: 0,
     });
 
     console.log(exc.workflowRunId);
