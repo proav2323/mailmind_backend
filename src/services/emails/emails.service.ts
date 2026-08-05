@@ -227,6 +227,7 @@ export class EmailsService {
     const aiRes = await fetch(`${process.env.AI_BACKEND_URL}/email`, {
       method: 'POST',
       body: JSON.stringify({ data: JSON.stringify(response), userId: userId }),
+      headers: { 'Content-Type': 'application/json' },
     });
     this.SOCKET.sendUserEmailLoading(email);
     return 'done';
