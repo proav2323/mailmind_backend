@@ -224,13 +224,11 @@ export class EmailsService {
       };
     });
 
-    const aiRes = await this.workflowClinet.trigger({
-      url: `${process.env.AI_BACKEND_URL}/email`,
-      body: { data: JSON.stringify(response), userId: userId },
-      retries: 0,
+    const aiRes = await fetch(`${process.env.AI_BACKEND_URL}/email`, {
+      method: 'POST',
+      body: JSON.stringify({ data: JSON.stringify(response), userId: userId }),
     });
     this.SOCKET.sendUserEmailLoading(email);
-    console.log(aiRes.workflowRunId);
     return 'done';
   }
 
