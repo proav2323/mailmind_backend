@@ -10,8 +10,8 @@ export class CronController {
     private emailsService: EmailsService,
   ) {}
   @Get('priorities')
-  syncPriorities(@Headers('authorization') authHeader: string) {
-    this.cronService.handleCron(authHeader);
+  async syncPriorities(@Headers('authorization') authHeader: string) {
+    await this.cronService.handleCron(authHeader);
     return { message: 'Priorities synced successfully' };
   }
 

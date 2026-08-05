@@ -9,15 +9,13 @@ export class CronService {
     private prismaService: PrismaService,
   ) {}
 
-  handleCron(authHeader: string) {
+  async handleCron(authHeader: string) {
     const cronSecret = process.env.CRON_SECRET;
     if (authHeader !== `Bearer ${cronSecret}`) {
       console.log('invalid cron secret');
       throw new UnauthorizedException('Invalid cron secret');
     }
-    fetch('https://mailmind-backend.vercel.app/crons/sync', {
-      headers: { authorization: `Bearer ${process.env.CRON_SECRET}` },
-      method: 'GET',
-    });
+    await this.emailsService.changePriorities();
+    return { message: 'Priorities synced successfully' };
   }
 }
