@@ -438,7 +438,7 @@ export class EmailsService {
         value.senderImportance,
         value.deadline
           ? value.deadline.toLocaleDateString('en-CA')
-          : new Date().toLocaleDateString("'en-CA'"),
+          : new Date().toLocaleDateString('en-CA'),
         value.requiresAction,
         value.isRead,
         value.isCompleted,
@@ -448,7 +448,7 @@ export class EmailsService {
         score,
         value.deadline
           ? value.deadline.toLocaleDateString('en-CA')
-          : new Date().toLocaleDateString("'en-CA'"),
+          : new Date().toLocaleDateString('en-CA'),
       );
 
       return await this.prisma.eMAILS.update({
