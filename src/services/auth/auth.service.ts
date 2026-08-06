@@ -197,7 +197,7 @@ export class AuthService {
           scopes: scopes,
           scope: scope,
         },
-        { expiresIn: '1d', secret: process.env.JWT_SECRET },
+        { expiresIn: '7d', secret: process.env.JWT_SECRET },
       );
 
       res.cookie('token', token);
