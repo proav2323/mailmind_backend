@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthService } from '../auth/auth.service';
@@ -240,8 +244,12 @@ export class EmailsService {
     return 'done';
   }
 
-  async storeEmailDataToDatabase(
-    response: {
+  async storeEmailDataToDatabase(data: string, emails: string, userId: string) {
+    const responseStr = await this.redisService.get(emails);
+    if (!responseStr) {
+      throw new UnauthorizedException('no data saved in redis');
+    }
+    const response = JSON.parse(responseStr) as {
       id?: string | null;
       body: {
         text: string;
@@ -269,11 +277,16 @@ export class EmailsService {
             desc: string;
           }
       )[];
-    }[],
-    aiArrays: Record<string, unknown>[],
-    userId: string,
-  ) {
-    const data = response.map(async (value, index) => {
+    }[];
+
+    const aiArraysString = await this.redisService.get(data);
+    if (!aiArraysString) {
+      throw new UnauthorizedException('no ai arrays');
+    }
+
+    const aiArrays = JSON.parse(aiArraysString) as Record<string, unknown>[];
+
+    const Resdata = response.map(async (value, index) => {
       const email = await this.prisma.eMAILS.findUnique({
         where: { gmailId: value.id! },
       });
@@ -359,7 +372,7 @@ export class EmailsService {
       return Promise.all(attach);
     });
 
-    return Promise.all(data);
+    return Promise.all(Resdata);
   }
 
   getEmailPriorityScore(
