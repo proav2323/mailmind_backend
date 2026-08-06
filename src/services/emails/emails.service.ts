@@ -356,9 +356,6 @@ export class EmailsService {
       throw new UnauthorizedException('no data saved in redis');
     }
 
-    console.log(response);
-    console.log(aiArrays);
-
     const Resdata = response.map(async (value, index) => {
       const email = await this.prisma.eMAILS.findUnique({
         where: { gmailId: value.id! },
@@ -367,7 +364,10 @@ export class EmailsService {
         console.log('email');
         return;
       }
-
+      console.log(value);
+      aiArrays.forEach((val) => {
+        console.log(val.id);
+      });
       const aiData = aiArrays.find((val) => val.id === value.myGivenId);
       if (!aiData) {
         console.log('no ai data');
