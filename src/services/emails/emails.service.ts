@@ -250,43 +250,43 @@ export class EmailsService {
   }
 
   async storeEmailDataToDatabase(data: string, emails: string, userId: string) {
-    const response = (await this.redisService.get(emails)) as
-      | {
-          body: {
-            text: string;
-            html: string;
-          };
-          attachments: {
-            filename: string;
-            mimeType: string;
-            attachmentId: string;
-          }[];
-          headers: {
-            subject: gmail_v1.Schema$MessagePartHeader | undefined;
-            deliveredTo: gmail_v1.Schema$MessagePartHeader | undefined;
-            from: gmail_v1.Schema$MessagePartHeader | undefined;
-            recievedAt: gmail_v1.Schema$MessagePartHeader | undefined;
-          };
-          myGivenId: string;
-          categories: (
-            | {
-                name: string;
-                desc?: undefined;
-              }
-            | {
-                name: string;
-                desc: string;
-              }
-          )[];
-          id: string | null | undefined;
-        }[]
-      | null;
-    const aiArrays = (await this.redisService.get(data)) as
-      Record<string, unknown>[] | null;
-    if (!response || !aiArrays) {
+    const responseStr = await this.redisService.get(emails);
+    const aiArraysStr = await this.redisService.get(data);
+    console.log(typeof responseStr, typeof aiArraysStr);
+    console.log(responseStr, aiArraysStr);
+    if (!responseStr || !aiArraysStr) {
       throw new UnauthorizedException('no data saved in redis');
     }
-
+    const response = JSON.parse(responseStr) as {
+      body: {
+        text: string;
+        html: string;
+      };
+      attachments: {
+        filename: string;
+        mimeType: string;
+        attachmentId: string;
+      }[];
+      headers: {
+        subject: gmail_v1.Schema$MessagePartHeader | undefined;
+        deliveredTo: gmail_v1.Schema$MessagePartHeader | undefined;
+        from: gmail_v1.Schema$MessagePartHeader | undefined;
+        recievedAt: gmail_v1.Schema$MessagePartHeader | undefined;
+      };
+      myGivenId: string;
+      categories: (
+        | {
+            name: string;
+            desc?: undefined;
+          }
+        | {
+            name: string;
+            desc: string;
+          }
+      )[];
+      id: string | null | undefined;
+    }[];
+    const aiArrays = JSON.parse(aiArraysStr) as Record<string, unknown>[];
     const Resdata = response.map(async (value, index) => {
       const email = await this.prisma.eMAILS.findUnique({
         where: { gmailId: value.id! },
