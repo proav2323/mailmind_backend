@@ -290,7 +290,7 @@ export class EmailsService {
         aiData.importance as number,
         aiData.urgency as number,
         aiData.senderImportance as number,
-        aiData.deadline as string,
+        aiData.deadline as string | null,
         aiData.requireAction as boolean,
         false,
         false,
@@ -316,7 +316,7 @@ export class EmailsService {
             : '',
           summary: aiData.summary as string,
           deadline:
-            aiData.deadline === 'null'
+            aiData.deadline === 'null' || aiData.deadline === null
               ? null
               : new Date(aiData.deadline as string),
           importance: aiData.importance as number,
@@ -324,7 +324,10 @@ export class EmailsService {
           requiresAction: aiData.requireAction as boolean,
           senderImportance: aiData.senderImportance as number,
           urgency: aiData.urgency as number,
-          priority: this.getEmailPrority(score, aiData.deadline as string),
+          priority: this.getEmailPrority(
+            score,
+            aiData.deadline as string | null,
+          ),
         },
       });
 
@@ -363,7 +366,7 @@ export class EmailsService {
     importance: number,
     urgency: number,
     senderImportance: number,
-    deadline: string,
+    deadline: string | null,
     requireAction: boolean,
     isRead: boolean,
     isCompleted: boolean,
@@ -385,7 +388,7 @@ export class EmailsService {
     return Math.min(score, 100);
   }
 
-  deadlineScore(deadline: string) {
+  deadlineScore(deadline: string | null) {
     if (!deadline) return 0;
     const deadlineDate = new Date(deadline);
     const todaysDate = new Date();
@@ -412,7 +415,7 @@ export class EmailsService {
     return 5;
   }
 
-  getEmailPrority(score: number, deadline: string) {
+  getEmailPrority(score: number, deadline: string | null) {
     if (this.deadlineScore(deadline) === 0) {
       return 'Expired';
     }
@@ -432,9 +435,7 @@ export class EmailsService {
         value.importance,
         value.urgency,
         value.senderImportance,
-        value.deadline
-          ? value.deadline.toLocaleDateString('en-CA')
-          : new Date().toLocaleDateString('en-CA'),
+        value.deadline ? value.deadline.toLocaleDateString('en-CA') : null,
         value.requiresAction,
         value.isRead,
         value.isCompleted,
@@ -442,9 +443,7 @@ export class EmailsService {
 
       const priority = this.getEmailPrority(
         score,
-        value.deadline
-          ? value.deadline.toLocaleDateString('en-CA')
-          : new Date().toLocaleDateString('en-CA'),
+        value.deadline ? value.deadline.toLocaleDateString('en-CA') : null,
       );
 
       return await this.prisma.eMAILS.update({
