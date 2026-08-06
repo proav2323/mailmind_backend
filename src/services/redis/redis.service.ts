@@ -14,8 +14,9 @@ export class RedisService {
     await this.redis.del(key);
   }
 
-  async get(key: string): Promise<string | null> {
-    return await this.redis.get<string>(key);
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  async get(key: string): Promise<any | null> {
+    return await this.redis.get<any>(key);
   }
 
   async checkIfItemExpired(
