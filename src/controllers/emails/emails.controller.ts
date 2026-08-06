@@ -1,5 +1,4 @@
 import { Body, Controller, Get, Headers, Post, Req } from '@nestjs/common';
-import { gmail_v1 } from 'googleapis';
 import { EmailsService } from 'src/services/emails/emails.service';
 
 @Controller('emails')
@@ -23,8 +22,8 @@ export class EmailsController {
     },
   ): Promise<any> {
     return await this.emailService.storeEmailDataToDatabase(
-      body.emails,
       body.data,
+      body.emails,
       body.userId,
     );
   }

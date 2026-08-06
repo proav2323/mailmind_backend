@@ -364,10 +364,7 @@ export class EmailsService {
         console.log('email');
         return;
       }
-      console.log(value);
-      aiArrays.forEach((val) => {
-        console.log(val.id);
-      });
+
       const aiData = aiArrays.find((val) => val.id === value.myGivenId);
       if (!aiData) {
         console.log('no ai data');
