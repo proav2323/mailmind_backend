@@ -17,37 +17,9 @@ export class EmailsController {
   async storeEmailData(
     @Body()
     body: {
-      data: Record<string, unknown>[];
+      data: string;
       userId: string;
-      emails: {
-        id?: string | null;
-        body: {
-          text: string;
-          html: string;
-        };
-        attachments: {
-          filename: string;
-          mimeType: string;
-          attachmentId: string;
-        }[];
-        headers: {
-          subject: gmail_v1.Schema$MessagePartHeader | undefined;
-          deliveredTo: gmail_v1.Schema$MessagePartHeader | undefined;
-          from: gmail_v1.Schema$MessagePartHeader | undefined;
-          recievedAt: gmail_v1.Schema$MessagePartHeader | undefined;
-        };
-        myGivenId: string;
-        categories: (
-          | {
-              name: string;
-              desc?: string | undefined;
-            }
-          | {
-              name: string;
-              desc: string;
-            }
-        )[];
-      }[];
+      emails: string;
     },
   ): Promise<any> {
     return await this.emailService.storeEmailDataToDatabase(
