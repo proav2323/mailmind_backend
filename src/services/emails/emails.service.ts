@@ -223,9 +223,14 @@ export class EmailsService {
         id: value.id,
       };
     });
+    await this.redisService.save(
+      JSON.stringify(response),
+      `${userId}-emails`,
+      30,
+    );
     const exc = await this.workflowClinet.trigger({
       url: `${process.env.AI_BACKEND_URL}/email`,
-      body: { data: JSON.stringify(response), userId: userId },
+      body: { data: `${userId}-emails`, userId: userId },
       headers: { 'Content-Type': 'application/json' },
       retries: 0,
     });
