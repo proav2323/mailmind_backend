@@ -246,7 +246,10 @@ export class EmailsService {
 
   async storeEmailDataToDatabase(data: string, emails: string, userId: string) {
     const responseStr = await this.redisService.get(emails);
-    if (!responseStr) {
+    const aiArraysString = await this.redisService.get(data);
+    console.log(responseStr);
+    console.log(aiArraysString);
+    if (!responseStr || !aiArraysString) {
       throw new UnauthorizedException('no data saved in redis');
     }
     const response = JSON.parse(responseStr) as {
@@ -278,11 +281,6 @@ export class EmailsService {
           }
       )[];
     }[];
-
-    const aiArraysString = await this.redisService.get(data);
-    if (!aiArraysString) {
-      throw new UnauthorizedException('no ai arrays');
-    }
 
     const aiArrays = JSON.parse(aiArraysString) as Record<string, unknown>[];
 
