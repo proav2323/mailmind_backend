@@ -250,8 +250,13 @@ export class EmailsService {
       { headers: { 'Content-Type': 'application/json' } },
     );
 
-    data.subscribe((data) => {
-      console.log(data);
+    data.subscribe({
+      error(err) {
+        console.log(err);
+      },
+      next(value) {
+        console.log(value);
+      },
     });
 
     // const responseC = await fetch(``, {
