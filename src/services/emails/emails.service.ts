@@ -242,50 +242,32 @@ export class EmailsService {
     //   headers: { 'Content-Type': 'application/json' },
     //   retries: 0,
     // });
-
-    // console.log('calling request', `${process.env.AI_BACKEND_URL}/email`, {
-    //   data: `${userId}-emails`,
-    //   userId: userId,
-    // });
-    // const data = await firstValueFrom(
-    //   this.http
-    //     .post(
-    //       `${process.env.AI_BACKEND_URL}/email`,
-    //       {
-    //         data: `${userId}-emails`,
-    //         userId: userId,
-    //       },
-    //       {
-    //         headers: { 'Content-Type': 'application/json' },
-    //         timeout: 100000,
-    //       },
-    //     )
-    //     .pipe(retry({ count: 2, delay: 50000 })),
-    // );
-    // console.log(data.status);
-
-    // checking if this wakes the service app
-    console.log('calling request', `${process.env.AI_BACKEND_URL}/email`, {
-      data: `${userId}-emails`,
-      userId: userId,
-    });
-    const data = await firstValueFrom(
-      this.http
-        .get(`${process.env.AI_BACKEND_URL}/`, {
-          headers: { 'Content-Type': 'application/json' },
-          timeout: 100000,
-        })
-        .pipe(retry({ count: 2, delay: 50000 })),
-    );
-    console.log(data.status);
-
-    // const responseC = await fetch(``, {
-    //   body: JSON.stringify(),
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    // });
-    // const error = await responseC.text();
-    // console.log(error);
+    try {
+      console.log('calling request', `${process.env.AI_BACKEND_URL}/email`, {
+        data: `${userId}-emails`,
+        userId: userId,
+      });
+      const data = await firstValueFrom(
+        this.http
+          .post(
+            `${process.env.AI_BACKEND_URL}/email`,
+            {
+              data: `${userId}-emails`,
+              userId: userId,
+            },
+            {
+              headers: { 'Content-Type': 'application/json' },
+              timeout: 100000,
+            },
+          )
+          .pipe(retry({ count: 2, delay: 50000 })),
+      );
+      console.log(data.status);
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException('something went wrong');
+    }
+    console.log('done calling');
 
     this.SOCKET.sendUserEmailLoading(email);
     return 'done';
