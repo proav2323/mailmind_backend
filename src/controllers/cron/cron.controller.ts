@@ -1,5 +1,9 @@
-import { Controller, Headers, UnauthorizedException } from '@nestjs/common';
-import { Get } from '@nestjs/common';
+import {
+  Controller,
+  Headers,
+  Post,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CronService } from '../../services/cron/cron.service';
 import { EmailsService } from '../../services/emails/emails.service';
 
@@ -9,13 +13,13 @@ export class CronController {
     private cronService: CronService,
     private emailsService: EmailsService,
   ) {}
-  @Get('priorities')
+  @Post('priorities')
   async syncPriorities(@Headers('authorization') authHeader: string) {
     await this.cronService.handleCron(authHeader);
     return { message: 'Priorities synced successfully' };
   }
 
-  @Get('sync')
+  @Post('sync')
   async syncPrioritiesRealtime(@Headers('authorization') authHeader: string) {
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
       console.log('invalid cron secret');

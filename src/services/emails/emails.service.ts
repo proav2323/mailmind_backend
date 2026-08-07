@@ -244,6 +244,7 @@ export class EmailsService {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
     });
+    console.log(responseC);
 
     this.SOCKET.sendUserEmailLoading(email);
     return 'done';
