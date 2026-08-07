@@ -14,6 +14,7 @@ import { Client } from '@upstash/workflow';
 import { gmail_v1 } from 'googleapis';
 import { SocketGateway } from '../../gateways/socket/socket.gateway';
 import { HttpService } from '@nestjs/axios';
+import { retry } from 'rxjs/operators';
 
 @Injectable()
 export class EmailsService {
@@ -241,14 +242,19 @@ export class EmailsService {
     //   retries: 0,
     // });
 
-    const data = this.http.post(
-      `${process.env.AI_BACKEND_URL}/email`,
-      {
-        data: `${userId}-emails`,
-        userId: userId,
-      },
-      { headers: { 'Content-Type': 'application/json' }, timeout: 100000 },
-    );
+    const data = this.http
+      .post(
+        `${process.env.AI_BACKEND_URL}/email`,
+        {
+          data: `${userId}-emails`,
+          userId: userId,
+        },
+        {
+          headers: { 'Content-Type': 'application/json' },
+          timeout: 100000,
+        },
+      )
+      .pipe(retry({ count: 2, delay: 50000 }));
 
     data.subscribe({
       error(err) {
