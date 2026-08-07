@@ -22,9 +22,11 @@ model USER {
   categories    CATEGORIES[]
   created_at    DateTime        @default(now())
   updated_at    DateTime        @updatedAt
+  settings  Json @default("{\"SyncCalender\": \"true\", \"Reminders\": \"true\" }")
   emails        EMAILS[]
   notifications notifications[]
 }
+
 
 model EMAILS {
   id         String   @id

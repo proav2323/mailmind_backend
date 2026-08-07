@@ -16,6 +16,7 @@ import { PubSubService } from './services/pub-sub/pub-sub.service';
 import { CronService } from './services/cron/cron.service';
 import { HttpModule } from '@nestjs/axios';
 import { CronController } from './controllers/cron/cron.controller';
+import { CalenderService } from './services/calender/calender.service';
 
 @Module({
   imports: [RedisModule, HttpModule],
@@ -37,6 +38,7 @@ import { CronController } from './controllers/cron/cron.controller';
     SocketGateway,
     PubSubService,
     CronService,
+    CalenderService,
   ],
 })
 export class AppModule {}
