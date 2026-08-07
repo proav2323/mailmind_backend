@@ -79,6 +79,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
       token === 'undefined' ||
       token === 'null'
     ) {
+      console.log('no token when disconnected');
       client.disconnect();
       return;
     }
@@ -88,6 +89,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (!decoded && !decoded.email) {
+      console.log('wrong token when disconnected');
       client.disconnect();
       return;
     }
@@ -99,6 +101,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
       where: { email: decoded.email as string },
     });
     if (!user) {
+      console.log('no user with this token');
       client.disconnect();
       return;
     }
