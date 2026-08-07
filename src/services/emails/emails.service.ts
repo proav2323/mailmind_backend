@@ -247,12 +247,13 @@ export class EmailsService {
         data: `${userId}-emails`,
         userId: userId,
       },
-      { headers: { 'Content-Type': 'application/json' } },
+      { headers: { 'Content-Type': 'application/json' }, timeout: 100000 },
     );
 
     data.subscribe({
       error(err) {
-        console.log(err);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        console.log(err.message, err.status_code, err.response);
       },
       next(value) {
         console.log(value);
