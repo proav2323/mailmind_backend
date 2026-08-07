@@ -244,7 +244,8 @@ export class EmailsService {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
     });
-    console.log(responseC);
+    const error = await responseC.text();
+    console.log(error);
 
     this.SOCKET.sendUserEmailLoading(email);
     return 'done';
