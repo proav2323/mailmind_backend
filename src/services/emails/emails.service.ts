@@ -13,6 +13,7 @@ import { generateId } from '../../utils/generateId';
 import { Client } from '@upstash/workflow';
 import { gmail_v1 } from 'googleapis';
 import { SocketGateway } from '../../gateways/socket/socket.gateway';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class EmailsService {
@@ -24,6 +25,7 @@ export class EmailsService {
     private ecryption: EcryptionService,
     private googleService: GoogleService,
     private SOCKET: SocketGateway,
+    private http: HttpService,
   ) {}
 
   private workflowClinet = new Client({
@@ -239,13 +241,26 @@ export class EmailsService {
     //   retries: 0,
     // });
 
-    const responseC = await fetch(`${process.env.AI_BACKEND_URL}/email`, {
-      body: JSON.stringify({ data: `${userId}-emails`, userId: userId }),
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const data = this.http.post(
+      `${process.env.AI_BACKEND_URL}/email`,
+      {
+        data: `${userId}-emails`,
+        userId: userId,
+      },
+      { headers: { 'Content-Type': 'application/json' } },
+    );
+
+    data.subscribe((data) => {
+      console.log(data);
     });
-    const error = await responseC.text();
-    console.log(error);
+
+    // const responseC = await fetch(``, {
+    //   body: JSON.stringify(),
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    // });
+    // const error = await responseC.text();
+    // console.log(error);
 
     this.SOCKET.sendUserEmailLoading(email);
     return 'done';

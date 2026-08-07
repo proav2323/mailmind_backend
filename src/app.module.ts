@@ -19,7 +19,13 @@ import { CronController } from './controllers/cron/cron.controller';
 import { CalenderService } from './services/calender/calender.service';
 
 @Module({
-  imports: [RedisModule, HttpModule],
+  imports: [
+    RedisModule,
+    HttpModule.register({
+      timeout: 100000, // Increase timeout to 60 seconds for AI processing
+      maxRedirects: 5,
+    }),
+  ],
   controllers: [
     AppController,
     AuthController,
