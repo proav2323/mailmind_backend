@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { UPSTASH_REDIS_CLIENT } from 'src/redis/redis.module';
+import { UPSTASH_REDIS_CLIENT } from '../../redis/redis.module';
 import { Redis } from '@upstash/redis';
 
 @Injectable()

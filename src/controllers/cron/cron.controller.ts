@@ -1,7 +1,7 @@
 import { Controller, Headers, UnauthorizedException } from '@nestjs/common';
 import { Get } from '@nestjs/common';
 import { CronService } from '../../services/cron/cron.service';
-import { EmailsService } from 'src/services/emails/emails.service';
+import { EmailsService } from '../../services/emails/emails.service';
 
 @Controller('crons')
 export class CronController {
