@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Headers,
   Post,
@@ -14,8 +15,8 @@ export class CronController {
     private emailsService: EmailsService,
   ) {}
   @Post('priorities')
-  async syncPriorities(@Headers('authorization') authHeader: string) {
-    await this.cronService.handleCron(authHeader);
+  async syncPriorities() {
+    await this.cronService.handleCron();
     return { message: 'Priorities synced successfully' };
   }
 
