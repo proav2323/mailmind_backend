@@ -15,6 +15,7 @@ import { gmail_v1 } from 'googleapis';
 import { SocketGateway } from '../../gateways/socket/socket.gateway';
 import { HttpService } from '@nestjs/axios';
 import { retry } from 'rxjs/operators';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class EmailsService {
@@ -242,29 +243,22 @@ export class EmailsService {
     //   retries: 0,
     // });
 
-    const data = this.http
-      .post(
-        `${process.env.AI_BACKEND_URL}/email`,
-        {
-          data: `${userId}-emails`,
-          userId: userId,
-        },
-        {
-          headers: { 'Content-Type': 'application/json' },
-          timeout: 100000,
-        },
-      )
-      .pipe(retry({ count: 2, delay: 50000 }));
-
-    data.subscribe({
-      error(err) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        console.log(err.message, err.status_code, err.response);
-      },
-      next(value) {
-        console.log(value.status);
-      },
-    });
+    const data = await firstValueFrom(
+      this.http
+        .post(
+          `${process.env.AI_BACKEND_URL}/email`,
+          {
+            data: `${userId}-emails`,
+            userId: userId,
+          },
+          {
+            headers: { 'Content-Type': 'application/json' },
+            timeout: 100000,
+          },
+        )
+        .pipe(retry({ count: 2, delay: 50000 })),
+    );
+    console.log(data.status);
 
     // const responseC = await fetch(``, {
     //   body: JSON.stringify(),
