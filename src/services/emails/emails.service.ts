@@ -256,7 +256,7 @@ export class EmailsService {
         console.log(err.message, err.status_code, err.response);
       },
       next(value) {
-        console.log(value);
+        console.log(value.status);
       },
     });
 
