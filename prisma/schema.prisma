@@ -23,6 +23,7 @@ model USER {
   created_at    DateTime        @default(now())
   updated_at    DateTime        @updatedAt
   settings  Json @default("{\"SyncCalender\": \"true\", \"Reminders\": \"true\" }")
+  sessions Json[] @default([])
   emails        EMAILS[]
   notifications notifications[]
 }
