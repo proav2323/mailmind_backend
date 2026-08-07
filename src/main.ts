@@ -16,6 +16,6 @@ async function bootstrap() {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
-  await app.listen(process.env.PORT ?? 8000, '0.0.0.0');
+  await app.listen(process.env.PORT || 8000, '0.0.0.0');
 }
 bootstrap();
