@@ -24,4 +24,12 @@ export class AuthController {
   ): Promise<string | undefined> {
     return await this.authService.login(req, body, response);
   }
+
+  @Get('save')
+  async saveFids(
+    @Req() req: Request,
+    @Headers() headers: Record<string, string>,
+  ) {
+    return await this.authService.saveFids(req, headers);
+  }
 }
