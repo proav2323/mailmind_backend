@@ -440,20 +440,16 @@ export class EmailsService {
             },
           },
         });
-        if (index === response.length - 1) {
-          const user = await this.prisma.uSER.findUnique({
-            where: { id: userId },
-          });
-          if (!user) {
-            return true;
-          }
-          this.SOCKET.sendUserEmailMsg(user.email);
-        }
-        return true;
       });
       return Promise.all(attach);
     });
-
+    const user = await this.prisma.uSER.findUnique({
+      where: { id: userId },
+    });
+    if (!user) {
+      return true;
+    }
+    this.SOCKET.sendUserEmailMsg(user.email);
     return Promise.all(Resdata);
   }
 
