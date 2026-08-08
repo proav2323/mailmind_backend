@@ -5,6 +5,7 @@ import * as msg from 'firebase-admin/messaging';
 import * as path from 'path';
 import { PrismaService } from '../prisma/prisma.service';
 import { JsonValue } from '../../generated/prisma/internal/prismaNamespace';
+import { generateId } from '../../utils/generateId';
 
 @Injectable()
 export class NotificationsService implements OnModuleInit {
@@ -63,6 +64,20 @@ export class NotificationsService implements OnModuleInit {
       const res = await msg
         .getMessaging(admin.getApp())
         .sendEachForMulticast(message);
+      await this.prisma.uSER.update({
+        where: { email: email },
+        data: {
+          notifications: {
+            create: {
+              id: generateId(8),
+              isSent: true,
+              title: title,
+              body: desc,
+              scheduledTime: new Date(),
+            },
+          },
+        },
+      });
       return { statsu: 'success', id: res };
     } catch (err) {
       console.log(err);
