@@ -17,6 +17,9 @@ import { CronService } from './services/cron/cron.service';
 import { HttpModule } from '@nestjs/axios';
 import { CronController } from './controllers/cron/cron.controller';
 import { CalenderService } from './services/calender/calender.service';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { NotificationsService } from './services/notifications/notifications.service';
+import { NotificationsController } from './controllers/notifications/notifications.controller';
 
 @Module({
   imports: [
@@ -25,12 +28,14 @@ import { CalenderService } from './services/calender/calender.service';
       timeout: 100000, // Increase timeout to 60 seconds for AI processing
       maxRedirects: 5,
     }),
+    NotificationsModule,
   ],
   controllers: [
     AppController,
     AuthController,
     EmailsController,
     CronController,
+    NotificationsController,
   ],
   providers: [
     AppService,
@@ -45,6 +50,7 @@ import { CalenderService } from './services/calender/calender.service';
     PubSubService,
     CronService,
     CalenderService,
+    NotificationsService,
   ],
 })
 export class AppModule {}

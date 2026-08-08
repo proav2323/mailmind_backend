@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "USER" ADD COLUMN     "fids" TEXT[] DEFAULT ARRAY[]::TEXT[];

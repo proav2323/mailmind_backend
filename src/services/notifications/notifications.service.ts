@@ -1,0 +1,87 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import * as admin from 'firebase-admin/app';
+import * as msg from 'firebase-admin/messaging';
+import * as path from 'path';
+import { PrismaService } from '../prisma/prisma.service';
+import { JsonValue } from '../../generated/prisma/internal/prismaNamespace';
+
+@Injectable()
+export class NotificationsService implements OnModuleInit {
+  constructor(private prisma: PrismaService) {}
+  onModuleInit() {
+    if (!admin.getApps().length) {
+      admin.initializeApp({
+        credential: admin.cert(
+          path.join(
+            process.cwd(),
+            'mailmind-4ca8e-firebase-adminsdk-fbsvc-419de384cf.json',
+          ),
+        ),
+      });
+    }
+  }
+
+  async sendPushNotifications(
+    title: string,
+    desc: string,
+    email: string,
+    data?: Record<string, string>,
+    image?: string,
+  ) {
+    const user = await this.prisma.uSER.findUnique({ where: { email: email } });
+    if (!user) return;
+
+    const fids: JsonValue[] = user.fids;
+    const sessions = user.sessions;
+
+    sessions.forEach((val) => {
+      const index = fids.findIndex(
+        (value) => value!['platform'] === val!['paltform'],
+      );
+      if (index < 0) {
+        return;
+      }
+
+      if (index === fids.length - 1) {
+        fids.pop();
+      } else {
+        fids.splice(index, 1);
+      }
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    const stringFids: string[] = fids.map((value) => value!['token']);
+    const message: msg.FidMulticastMessage = {
+      data: data ?? {},
+      notification: { title: title, body: desc, imageUrl: image },
+      fids: stringFids,
+    };
+
+    message.android = {
+      priority: 'high',
+      notification: {
+        sound: 'default',
+        clickAction: 'OPEN_ACTIVITY_1', // Triggers targeted intent on Android devices
+      },
+    };
+    message.webpush = {
+      headers: {
+        Urgency: 'high',
+      },
+      notification: {
+        icon: '/firebase-logo.png', // Paths relative to your web app asset root
+        click_action: 'https://mailmind-frontend-web.vercel.app/dashboard', // Absolute redirection path
+      },
+    };
+
+    try {
+      const res = await msg
+        .getMessaging(admin.getApp())
+        .sendEachForMulticast(message);
+      return { statsu: 'success', id: res };
+    } catch (err) {
+      console.log(err);
+    }
+  }
+}

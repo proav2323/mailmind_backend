@@ -44,6 +44,7 @@
     "cache-manager-redis-yet": "^5.1.5",
     "config": "^5.0.0",
     "cookie-parser": "^1.4.7",
+    "firebase-admin": "^14.2.0",
     "googleapis": "^173.0.0",
     "googleapis-common": "^8.0.3",
     "help": "^3.0.2",
