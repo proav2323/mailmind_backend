@@ -33,22 +33,6 @@ export class NotificationsService implements OnModuleInit {
     if (!user) return;
 
     const fids: JsonValue[] = user.fids;
-    const sessions = user.sessions;
-
-    sessions.forEach((val) => {
-      const index = fids.findIndex(
-        (value) => value!['platform'] === val!['paltform'],
-      );
-      if (index < 0) {
-        return;
-      }
-
-      if (index === fids.length - 1) {
-        fids.pop();
-      } else {
-        fids.splice(index, 1);
-      }
-    });
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     const stringFids: string[] = fids.map((value) => value!['token']);
