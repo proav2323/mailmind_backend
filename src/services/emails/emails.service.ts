@@ -448,7 +448,10 @@ export class EmailsService {
             : '',
           summary: aiData.summary as string,
           deadline:
-            aiData.deadline === 'null' || aiData.deadline === null
+            aiData.deadline === 'null' ||
+            aiData.deadline === null ||
+            aiData.deadline === '' ||
+            aiData.deadline === ' '
               ? null
               : new Date(aiData.deadline as string),
           importance: aiData.importance as number,
