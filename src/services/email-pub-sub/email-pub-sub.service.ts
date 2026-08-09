@@ -9,6 +9,7 @@ import { GoogleService } from '../google/google.service';
 import { EmailsService } from '../emails/emails.service';
 import { SocketGateway } from '../../gateways/socket/socket.gateway';
 import { NotificationsService } from '../notifications/notifications.service';
+import * as path from 'path';
 
 @Injectable()
 export class EmailPubSubService implements OnModuleDestroy, OnModuleInit {
@@ -23,8 +24,11 @@ export class EmailPubSubService implements OnModuleDestroy, OnModuleInit {
     private Socket: SocketGateway,
   ) {
     this.pubSubClient = new PubSub({
-      projectId: 'YOUR_GCP_PROJECT_ID',
-      keyFilename: 'path/to/your/service-account-key.json',
+      projectId: process.env.GCP_PROJECT_ID,
+      keyFilename: path.join(
+        process.cwd(),
+        'mailmind-4ca8e-firebase-adminsdk-fbsvc-419de384cf.json',
+      ),
     });
 
     this.subscription = this.pubSubClient.subscription(
