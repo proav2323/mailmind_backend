@@ -11,6 +11,7 @@ export class CronService {
 
   async handleCron() {
     await this.emailsService.changePriorities();
+    await this.emailsService.checkUserWatchExp();
     return { message: 'Priorities synced successfully' };
   }
 }

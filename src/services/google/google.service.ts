@@ -7,10 +7,14 @@ import {
 import { gmail_v1, google } from 'googleapis';
 import { AuthService } from '../auth/auth.service';
 import { GaxiosResponseWithHTTP2 } from 'googleapis-common';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class GoogleService {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private prisma: PrismaService,
+  ) {}
   googleClient = new google.auth.OAuth2({
     client_id: process.env.GOOGLE_CLIENT_ID,
     clientId: process.env.GOOGLE_CLIENT_ID,
@@ -397,7 +401,12 @@ export class GoogleService {
     return newEmails;
   }
 
-  async watch(accessToken: string, refreshToken: string, idToken: string) {
+  async watch(
+    accessToken: string,
+    refreshToken: string,
+    idToken: string,
+    email: string,
+  ) {
     this.googleClient.setCredentials({
       access_token: accessToken,
       refresh_token: refreshToken,
@@ -420,7 +429,13 @@ export class GoogleService {
         labelFilterAction: 'include',
       },
     });
-
+    await this.prisma.uSER.update({
+      where: { email: email },
+      data: {
+        isWatching: true,
+        exp: res.data.expiration ? new Date(Number(res.data.expiration)) : null,
+      },
+    });
     return res;
   }
 }

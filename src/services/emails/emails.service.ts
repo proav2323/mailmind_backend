@@ -181,21 +181,12 @@ export class EmailsService {
     }
 
     if (!user.isWatching) {
-      const data = await this.googleService.watch(
+      await this.googleService.watch(
         accessToken,
         user.refreshToken,
         idToken,
+        email,
       );
-
-      await this.prisma.uSER.update({
-        where: { email: email },
-        data: {
-          isWatching: true,
-          exp: data.data.expiration
-            ? new Date(Number(data.data.expiration))
-            : null,
-        },
-      });
     }
 
     const body = {
@@ -534,8 +525,7 @@ export class EmailsService {
     return Math.min(score, 100);
   }
 
-  deadlineScore(deadline: string | null) {
-    if (!deadline) return 0;
+  getDiffDays(deadline: string) {
     const deadlineDate = new Date(deadline);
     const todaysDate = new Date();
 
@@ -545,6 +535,13 @@ export class EmailsService {
     const diffInMs = deadlineDate.getTime() - todaysDate.getTime();
 
     const days = Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
+
+    return days;
+  }
+
+  deadlineScore(deadline: string | null) {
+    if (!deadline) return 0;
+    const days = this.getDiffDays(deadline);
 
     if (days >= 0 && days <= 1) return 30;
 
@@ -647,5 +644,79 @@ export class EmailsService {
       userId,
       not,
     );
+  }
+
+  async checkUserWatchExp() {
+    const users = await this.prisma.uSER.findMany({});
+    const res = users.map(async (user) => {
+      if (user.exp && user.isWatching) {
+        const days = this.getDiffDays(user.exp.toLocaleDateString('en-CA'));
+
+        if (days < 1 || (days > 1 && days < 2)) {
+          const refreshToken = user.refreshToken;
+          const check = await this.redisService.checkIfItemExpired(
+            `${user.email}-accessToken`,
+          );
+
+          let accessToken: string;
+          let idToken: string;
+
+          if (
+            check.expired === true ||
+            (check.expired === false && check.secondsLeft <= 300)
+          ) {
+            const res = await this.authService.getNewAccessToken(
+              refreshToken,
+              false,
+              '',
+              false,
+            );
+
+            if (!res.ok || res.status === 500) {
+              const error = await res.text();
+              throw new BadRequestException(error);
+            }
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const data: any = await res.json();
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            accessToken = data['access_token'] as string;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            idToken = data['id_token'] as string;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            const expressIn: number = data['expires_in'] as number;
+            await this.authService.updateToken(
+              accessToken,
+              'no access mbile -toke and no need',
+              idToken,
+              expressIn,
+              user.email,
+            );
+          } else {
+            const accessTokenHash = (await this.redisService.get(
+              `${user.email}-accessToken`,
+            )) as string;
+            const idTokenHash = (await this.redisService.get(
+              `${user.email}-idToken`,
+            )) as string;
+
+            accessToken = this.ecryption.decrypt(accessTokenHash);
+            idToken = this.ecryption.decrypt(idTokenHash);
+          }
+
+          if (!accessToken || !idToken) {
+            throw new BadRequestException('no access token and id token found');
+          }
+          await this.googleService.watch(
+            accessToken,
+            user.refreshToken,
+            idToken,
+            user.email,
+          );
+        }
+      }
+    });
+
+    return Promise.all(res);
   }
 }
