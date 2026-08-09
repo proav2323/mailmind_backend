@@ -279,7 +279,7 @@ export class EmailsService {
           {
             data: `${userId}-emails`,
             userId: userId,
-            not: not,
+            noti: not,
           },
           {
             headers: { 'Content-Type': 'application/json' },
