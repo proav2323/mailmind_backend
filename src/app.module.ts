@@ -25,7 +25,7 @@ import { NotificationsController } from './controllers/notifications/notificatio
   imports: [
     RedisModule,
     HttpModule.register({
-      timeout: 100000, // Increase timeout to 60 seconds for AI processing
+      timeout: 300000, // Increase timeout to 60 seconds for AI processing
       maxRedirects: 5,
     }),
     NotificationsModule,

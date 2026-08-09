@@ -32,4 +32,12 @@ export class AuthController {
   ) {
     return await this.authService.saveFids(req, headers);
   }
+
+  @Get('remove')
+  async removeFids(
+    @Req() req: Request,
+    @Headers() headers: Record<string, string>,
+  ) {
+    return await this.authService.removeFids(req, headers);
+  }
 }

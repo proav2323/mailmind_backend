@@ -7,6 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
 import { EcryptionService } from '../ecryption/ecryption.service';
 import { JwtService } from '@nestjs/jwt';
+import { InputJsonValue } from '@prisma/client/runtime/client';
 
 @Injectable()
 export class AuthService {
@@ -357,6 +358,49 @@ export class AuthService {
         fids: {
           push: { token: FID, platform: PLATFROM },
         },
+      },
+    });
+
+    return 'done';
+  }
+
+  async removeFids(req: Request, headers: Record<string, string>) {
+    const token = (req as Request & { cookies?: Record<string, string> })
+      .cookies?.token;
+    let secondToken: string | undefined = undefined;
+    if (headers.authorization !== null && headers.authorization !== undefined) {
+      secondToken = headers.authorization.split(' ')[1];
+    }
+
+    if (!token && !secondToken) {
+      console.log('no token');
+      throw new BadRequestException('token not valid');
+    }
+
+    const decoded = this.JWT.verify<{
+      email: string;
+      scopes: string[];
+      scope: string;
+    }>(token !== undefined && token !== null ? token : secondToken!, {
+      secret: process.env.JWT_SECRET,
+    });
+
+    const user = await this.prisma.uSER.findUnique({
+      where: { email: decoded.email },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('user not exists');
+    }
+
+    const FID = headers.fid;
+
+    const fid = user.fids.filter((value) => value!['token'] !== FID);
+
+    await this.prisma.uSER.update({
+      where: { email: decoded.email },
+      data: {
+        fids: fid as InputJsonValue[],
       },
     });
 
