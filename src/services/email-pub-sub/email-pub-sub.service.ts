@@ -5,10 +5,7 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
-import { GoogleService } from '../google/google.service';
 import { EmailsService } from '../emails/emails.service';
-import { SocketGateway } from '../../gateways/socket/socket.gateway';
-import { NotificationsService } from '../notifications/notifications.service';
 import * as path from 'path';
 
 @Injectable()
@@ -17,17 +14,12 @@ export class EmailPubSubService implements OnModuleDestroy, OnModuleInit {
   private pubSubClient: PubSub;
   private subscription: Subscription;
 
-  constructor(
-    private googleService: GoogleService,
-    private emailService: EmailsService,
-    private notificationService: NotificationsService,
-    private Socket: SocketGateway,
-  ) {
+  constructor(private emailService: EmailsService) {
     this.pubSubClient = new PubSub({
       projectId: process.env.GCP_PROJECT_ID,
       keyFilename: path.join(
         process.cwd(),
-        'mailmind-4ca8e-firebase-adminsdk-fbsvc-419de384cf.json',
+        'massive-vector-501914-a5-4b0d07bcac61.json',
       ),
     });
 
