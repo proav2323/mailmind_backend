@@ -12,7 +12,6 @@ import { RedisModule } from './redis/redis.module';
 import { EcryptionService } from './services/ecryption/ecryption.service';
 import { GoogleService } from './services/google/google.service';
 import { SocketGateway } from './gateways/socket/socket.gateway';
-import { PubSubService } from './services/pub-sub/pub-sub.service';
 import { CronService } from './services/cron/cron.service';
 import { HttpModule } from '@nestjs/axios';
 import { CronController } from './controllers/cron/cron.controller';
@@ -48,7 +47,6 @@ import { EmailPubSubService } from './services/email-pub-sub/email-pub-sub.servi
     EcryptionService,
     GoogleService,
     SocketGateway,
-    PubSubService,
     CronService,
     CalenderService,
     NotificationsService,
