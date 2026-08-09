@@ -417,6 +417,7 @@ export class GoogleService {
       requestBody: {
         topicName: `projects/${process.env.GCP_PROJECT_ID}/topics/gmail-notification`,
         labelIds: ['INBOX'], // Optional: filter down to specific labels
+        labelFilterAction: 'include',
       },
     });
 
