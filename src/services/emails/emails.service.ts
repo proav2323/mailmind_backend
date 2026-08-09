@@ -268,6 +268,12 @@ export class EmailsService {
     );
     try {
       await firstValueFrom(
+        this.http.get(`https://mailmingaiwakingfix.vercel.app/wake`, {
+          headers: { 'Content-Type': 'application/json' },
+          timeout: 300000,
+        }),
+      );
+      await firstValueFrom(
         this.http.post(
           `${process.env.AI_BACKEND_URL}/email`,
           {
@@ -276,7 +282,7 @@ export class EmailsService {
           },
           {
             headers: { 'Content-Type': 'application/json' },
-            timeout: 100000,
+            timeout: 300000,
           },
         ),
       );

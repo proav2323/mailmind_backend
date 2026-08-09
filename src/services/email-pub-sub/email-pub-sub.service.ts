@@ -67,8 +67,6 @@ export class EmailPubSubService implements OnModuleDestroy, OnModuleInit {
       message.ack();
     } catch (error) {
       this.logger.error('Failed to process message', error);
-      // Nack causes the message to be retried
-      message.nack();
     }
   }
 
