@@ -19,12 +19,14 @@ export class EmailsController {
       data: string;
       userId: string;
       emails: string;
+      not?: boolean;
     },
   ): Promise<any> {
     return await this.emailService.storeEmailDataToDatabase(
       body.data,
       body.emails,
       body.userId,
+      body.not,
     );
   }
 }

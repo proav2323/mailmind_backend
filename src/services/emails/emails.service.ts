@@ -279,6 +279,7 @@ export class EmailsService {
           {
             data: `${userId}-emails`,
             userId: userId,
+            not: not,
           },
           {
             headers: { 'Content-Type': 'application/json' },
@@ -292,17 +293,16 @@ export class EmailsService {
     }
 
     this.SOCKET.sendUserEmailLoading(email);
-    if (not) {
-      await this.notidicationService.sendPushNotifications(
-        'recieved a new email from processing',
-        'your new email will ready by ai agents in 1 minute',
-        email,
-      );
-    }
+
     return 'done';
   }
 
-  async storeEmailDataToDatabase(data: string, emails: string, userId: string) {
+  async storeEmailDataToDatabase(
+    data: string,
+    emails: string,
+    userId: string,
+    not?: boolean,
+  ) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unnecessary-type-assertion
     const responseStr = (await this.redisService.get(emails)) as any;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unnecessary-type-assertion
@@ -496,6 +496,15 @@ export class EmailsService {
       return true;
     }
     this.SOCKET.sendUserEmailMsg(user.email);
+    if (response.length !== 0 && aiArrays.length !== 0) {
+      if (not) {
+        await this.notidicationService.sendPushNotifications(
+          'you have a new emails',
+          'new emails proccessed by our ai agents',
+          user.email,
+        );
+      }
+    }
     return Promise.all(Resdata);
   }
 
