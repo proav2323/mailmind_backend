@@ -211,13 +211,13 @@ export class GoogleService {
     idToken: string,
     scope: string,
   ) {
-    const gmail = google.gmail({ version: 'v1', auth: this.googleClient });
     this.googleClient.setCredentials({
       access_token: accessToken,
       id_token: idToken,
       refresh_token: refreshToken,
       scope: scope,
     });
+    const gmail = google.gmail({ version: 'v1', auth: this.googleClient });
 
     try {
       // 1. Fetch the raw attachment payload from Google
@@ -395,5 +395,31 @@ export class GoogleService {
     }
 
     return newEmails;
+  }
+
+  async watch(accessToken: string, refreshToken: string, idToken: string) {
+    this.googleClient.setCredentials({
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      id_token: idToken,
+    });
+
+    const gmail = google.gmail({
+      auth: this.googleClient,
+      version: 'v1',
+      key: process.env.GMAIL_API_KEY,
+    });
+
+    const res = await gmail.users.watch({
+      auth: this.googleClient,
+      key: process.env.GMAIL_API_KEY,
+      userId: 'me',
+      requestBody: {
+        topicName: `projects/${process.env.GCP_PROJECT_ID}/topics/gmail-notification`,
+        labelIds: ['INBOX'], // Optional: filter down to specific labels
+      },
+    });
+
+    return res;
   }
 }

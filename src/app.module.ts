@@ -20,6 +20,7 @@ import { CalenderService } from './services/calender/calender.service';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { NotificationsService } from './services/notifications/notifications.service';
 import { NotificationsController } from './controllers/notifications/notifications.controller';
+import { EmailPubSubService } from './services/email-pub-sub/email-pub-sub.service';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { NotificationsController } from './controllers/notifications/notificatio
     CronService,
     CalenderService,
     NotificationsService,
+    EmailPubSubService,
   ],
 })
 export class AppModule {}

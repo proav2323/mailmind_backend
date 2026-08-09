@@ -23,6 +23,8 @@ model USER {
   created_at    DateTime        @default(now())
   updated_at    DateTime        @updatedAt
   settings  Json @default("{\"SyncCalender\": \"true\", \"Reminders\": \"true\" }")
+  isWatching Boolean @default(false)
+  exp DateTime?
   sessions Json[] @default([])
   fids Json[] @default([])
   emails        EMAILS[]
@@ -64,6 +66,7 @@ model notifications {
   body          String
   scheduledTime DateTime
   isSent        Boolean
+  seen Boolean @default(false)
   User          USER     @relation(fields: [userId], references: [id])
 }
 

@@ -14,8 +14,8 @@ import { Client } from '@upstash/workflow';
 import { gmail_v1 } from 'googleapis';
 import { SocketGateway } from '../../gateways/socket/socket.gateway';
 import { HttpService } from '@nestjs/axios';
-import { retry } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class EmailsService {
@@ -28,6 +28,7 @@ export class EmailsService {
     private googleService: GoogleService,
     private SOCKET: SocketGateway,
     private http: HttpService,
+    private notidicationService: NotificationsService,
   ) {}
 
   private workflowClinet = new Client({
@@ -106,8 +107,17 @@ export class EmailsService {
       secret: process.env.JWT_SECRET,
     });
 
+    return await this.get_user_emails(decoded.email, decoded.scope, year);
+  }
+
+  async get_user_emails(
+    email: string,
+    scope: string,
+    year: string,
+    not?: boolean,
+  ) {
     const user = await this.prisma.uSER.findUnique({
-      where: { email: decoded.email },
+      where: { email: email },
       include: { categories: {} },
     });
 
@@ -170,16 +180,33 @@ export class EmailsService {
       throw new BadRequestException('no access token and id token found');
     }
 
+    if (!user.isWatching) {
+      const data = await this.googleService.watch(
+        accessToken,
+        user.refreshToken,
+        idToken,
+      );
+
+      await this.prisma.uSER.update({
+        where: { email: email },
+        data: {
+          isWatching: true,
+          exp: data.data.expiration ? new Date(data.data.expiration) : null,
+        },
+      });
+    }
+
     const body = {
       accessToken,
       idToken,
       refreshToken: user.refreshToken,
-      scope: decoded.scope,
+      scope: scope,
       year,
       historyId: user.historyId,
       email: user.email,
       categories: user.categories,
       userId: user.id,
+      not: not,
     };
 
     await this.emailWorkflow(body);
@@ -197,6 +224,7 @@ export class EmailsService {
     scope: string,
     categories: { name: string; id: string; userId: string }[],
     userId: string,
+    not?: boolean,
   ) {
     const res = await this.googleService.getEmails(
       accessToken,
@@ -237,7 +265,7 @@ export class EmailsService {
       3600,
     );
     try {
-      const data = await firstValueFrom(
+      await firstValueFrom(
         this.http.post(
           `${process.env.AI_BACKEND_URL}/email`,
           {
@@ -256,6 +284,13 @@ export class EmailsService {
     }
 
     this.SOCKET.sendUserEmailLoading(email);
+    if (not) {
+      await this.notidicationService.sendPushNotifications(
+        'recieved a new email from processing',
+        'your new email will ready by ai agents in 1 minute',
+        email,
+      );
+    }
     return 'done';
   }
 
@@ -366,7 +401,7 @@ export class EmailsService {
       throw new UnauthorizedException('no data saved in redis');
     }
 
-    const Resdata = response.map(async (value, index) => {
+    const Resdata = response.map(async (value) => {
       const email = await this.prisma.eMAILS.findUnique({
         where: { gmailId: value.id! },
       });
@@ -556,6 +591,7 @@ export class EmailsService {
     email: string;
     categories: { name: string; id: string; userId: string }[];
     userId: string;
+    not?: boolean;
   }) {
     const {
       accessToken,
@@ -567,6 +603,7 @@ export class EmailsService {
       email,
       categories,
       userId,
+      not,
     } = body;
 
     const user = await this.prisma.uSER.findUnique({
@@ -588,6 +625,7 @@ export class EmailsService {
       scope,
       categories,
       userId,
+      not,
     );
   }
 }
