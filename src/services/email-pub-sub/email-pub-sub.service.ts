@@ -31,7 +31,7 @@ export class EmailPubSubService implements OnModuleDestroy, OnModuleInit {
     this.subscription.on('message', (message: Message) => {
       this.handleMessage(message)
         .then(() => {
-          this.logger.error(`Pub/Sub success`);
+          this.logger.log(`Pub/Sub success`);
         })
         .catch((error) => {
           this.logger.error(`Pub/Sub Error: ${error}`);

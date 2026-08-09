@@ -191,7 +191,9 @@ export class EmailsService {
         where: { email: email },
         data: {
           isWatching: true,
-          exp: data.data.expiration ? new Date(data.data.expiration) : null,
+          exp: data.data.expiration
+            ? new Date(Number(data.data.expiration))
+            : null,
         },
       });
     }
