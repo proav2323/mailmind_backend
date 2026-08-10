@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Headers, Post, Req, Res } from '@nestjs/common';
 import * as res from 'express';
-import { USER } from '../../generated/prisma/client';
 import { AuthService } from '../../services/auth/auth.service';
 
 @Controller('auth')
@@ -11,7 +10,21 @@ export class AuthController {
   async auth(
     @Req() req: Request,
     @Headers() headers: Record<string, string>,
-  ): Promise<USER | undefined> {
+  ): Promise<
+    | {
+        id: string;
+        email: string;
+        branch: string | null;
+        college: string | null;
+        year: number | null;
+        oAuthProvider: string;
+        created_at: Date;
+        updated_at: Date;
+        name: string;
+        photoUrl: string;
+      }
+    | undefined
+  > {
     return await this.authService.auth(req, headers);
   }
 
