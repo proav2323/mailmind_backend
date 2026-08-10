@@ -278,7 +278,7 @@ export class EmailsService {
           {
             data: `${userId}-emails`,
             userId: userId,
-            noti: not,
+            noti: not !== undefined ? not : false,
           },
           {
             headers: { 'Content-Type': 'application/json' },
