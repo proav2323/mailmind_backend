@@ -64,9 +64,23 @@ export class NotificationsService implements OnModuleInit {
     };
 
     try {
-      const res = await msg
+      await msg
         .getMessaging(admin.getApp())
-        .sendEachForMulticast(message);
+        .sendEachForMulticast(message)
+        .then((response) => {
+          console.log(
+            response.successCount + ' messages were sent successfully',
+          );
+          if (response.failureCount > 0) {
+            const failedFids: string[] = [];
+            response.responses.forEach((resp, idx) => {
+              if (!resp.success) {
+                failedFids.push(fids[idx]!['token'] as string);
+              }
+            });
+            console.log('List of FIDs that caused failures:', failedFids);
+          }
+        });
       await this.prisma.uSER.update({
         where: { email: email },
         data: {
@@ -82,10 +96,7 @@ export class NotificationsService implements OnModuleInit {
         },
         select: { id: true },
       });
-      res.responses.forEach((value) => {
-        console.log(value, '1 value done');
-      });
-      return { statsu: 'success', id: res };
+      return { statsu: 'success' };
     } catch (err) {
       console.log(err);
     }
