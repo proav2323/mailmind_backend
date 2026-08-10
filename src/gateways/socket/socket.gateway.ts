@@ -9,7 +9,7 @@ import { Server, Socket } from 'socket.io';
 import { PrismaService } from '../../services/prisma/prisma.service';
 import { Prisma } from '../../generated/prisma/client';
 
-@WebSocketGateway({ cors: true })
+@WebSocketGateway({ cors: true, pingInterval: 25000, pingTimeout: 5000 })
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private JWT: JwtService,
