@@ -76,6 +76,7 @@ export class NotificationsService implements OnModuleInit {
             response.responses.forEach((resp, idx) => {
               if (!resp.success) {
                 failedFids.push(fids[idx]!['token'] as string);
+                console.log(resp.error);
               }
             });
             console.log('List of FIDs that caused failures:', failedFids);
