@@ -63,6 +63,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
           push: { clientId: client.id, platform: platform ?? 'web' },
         },
       },
+      select: { id: true },
     });
     console.log('client connected');
   }
@@ -99,6 +100,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const user = await this.prisma.uSER.findUnique({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       where: { email: decoded.email as string },
+      select: { sessions: true },
     });
     if (!user) {
       console.log('no user with this token');
@@ -115,6 +117,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
       data: {
         sessions: newSessions as Prisma.InputJsonValue[],
       },
+      select: { id: true },
     });
     console.log('client disconnected');
   }

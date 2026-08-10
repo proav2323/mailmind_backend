@@ -498,21 +498,32 @@ export class EmailsService {
     });
     const user = await this.prisma.uSER.findUnique({
       where: { id: userId },
-      select: { id: true, email: true },
+      select: { email: true },
     });
     if (!user) {
       return true;
     }
     this.SOCKET.sendUserEmailMsg(user.email);
     if (response.length !== 0 && aiArrays.length !== 0) {
+      console.log(not);
       if (not) {
-        await this.notidicationService.sendPushNotifications(
-          'you have a new emails',
-          'new emails proccessed by our ai agents',
-          user.email,
-        );
+        if (response.length === 1 && aiArrays.length === 1) {
+          await this.notidicationService.sendPushNotifications(
+            aiArrays[0].subject as string,
+            aiArrays[0].summary as string,
+            user.email,
+          );
+        } else {
+          await this.notidicationService.sendPushNotifications(
+            'you have a new emails',
+            'new emails proccessed by our ai agents',
+            user.email,
+          );
+        }
+      } else {
+        console.log(not);
       }
-    }
+    } //  removed for testing purploses only
     return Promise.all(Resdata);
   }
 

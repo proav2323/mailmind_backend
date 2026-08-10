@@ -82,6 +82,7 @@ export class NotificationsService implements OnModuleInit {
         },
         select: { id: true },
       });
+      console.log(res.responses);
       return { statsu: 'success', id: res };
     } catch (err) {
       console.log(err);
