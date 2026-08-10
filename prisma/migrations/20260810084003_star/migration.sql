@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "EMAILS" ADD COLUMN     "isStared" BOOLEAN NOT NULL DEFAULT false;

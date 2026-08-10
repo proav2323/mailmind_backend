@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Headers, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  Param,
+  Post,
+  Req,
+} from '@nestjs/common';
 import { EmailsService } from '../../services/emails/emails.service';
 
 @Controller('emails')
@@ -28,5 +36,20 @@ export class EmailsController {
       body.userId,
       body.not,
     );
+  }
+
+  @Get(':id')
+  async getUserEmails(@Param('id') id: string) {
+    return await this.emailService.getUserAllEmails(id);
+  }
+
+  @Get('category/:category')
+  async getCatgeoryEmails(@Param('category') category: string) {
+    return await this.emailService.getCategoryEmails(category);
+  }
+
+  @Get('email/:id')
+  async getEmail(@Param('id') id: string) {
+    return await this.emailService.getSingleEmail(id);
   }
 }

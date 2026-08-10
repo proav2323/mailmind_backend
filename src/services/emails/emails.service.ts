@@ -749,4 +749,63 @@ export class EmailsService {
 
     return Promise.all(res);
   }
+
+  async getUserAllEmails(id: string) {
+    return await this.prisma.eMAILS.findMany({
+      where: { userId: id },
+      select: {
+        id: true,
+        GmailSubject: true,
+        subject: true,
+        summary: true,
+        category: true,
+        sender: true,
+        isStared: true,
+        priority: true,
+        aiPriority: true,
+      },
+    });
+  }
+
+  async getCategoryEmails(category: string) {
+    return await this.prisma.eMAILS.findMany({
+      where: { category: category },
+      select: {
+        id: true,
+        GmailSubject: true,
+        subject: true,
+        summary: true,
+        category: true,
+        sender: true,
+        isStared: true,
+        priority: true,
+        aiPriority: true,
+      },
+    });
+  }
+
+  async getSingleEmail(id: string) {
+    return await this.prisma.eMAILS.findUnique({
+      where: { id: id },
+      select: {
+        id: true,
+        subject: true,
+        summary: true,
+        gmailId: true,
+        GmailSubject: true,
+        priority: true,
+        aiPriority: true,
+        category: true,
+        deadline: true,
+        sender: true,
+        lastOpenedAt: true,
+        isStared: true,
+        isCompleted: true,
+        attachments: {
+          select: { attachmentId: true, mimetype: true, file: true },
+        },
+        body: true,
+      },
+    });
+  }
 }

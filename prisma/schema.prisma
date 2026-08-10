@@ -54,6 +54,7 @@ model EMAILS {
   senderImportance Int
   isCompleted Boolean
   tags       String[]
+  isStared Boolean @default(false)
   updatedAt  DateTime @updatedAt @default(now())
   User       USER     @relation(fields: [userId], references: [id])
   attachments ATTACHMENTS[]
