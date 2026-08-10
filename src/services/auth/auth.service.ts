@@ -39,7 +39,7 @@ export class AuthService {
     });
 
     const user = await this.prisma.uSER.findUnique({
-      where: { email: decoded.email },ss
+      where: { email: decoded.email },
     });
 
     if (!user) {
