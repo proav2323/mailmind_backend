@@ -118,7 +118,15 @@ export class EmailsService {
   ) {
     const user = await this.prisma.uSER.findUnique({
       where: { email: email },
-      include: { categories: {} },
+      select: {
+        categories: true,
+        email: true,
+        refreshToken: true,
+        isWatching: true,
+        exp: true,
+        historyId: true,
+        id: true,
+      },
     });
 
     if (!user) {
@@ -403,6 +411,7 @@ export class EmailsService {
     const Resdata = response.map(async (value) => {
       const email = await this.prisma.eMAILS.findUnique({
         where: { gmailId: value.id! },
+        select: { id: true },
       });
       if (email) {
         console.log('email');
@@ -461,6 +470,10 @@ export class EmailsService {
             aiData.deadline as string | null,
           ),
         },
+        select: {
+          id: true,
+          gmailId: true,
+        },
       });
 
       const attach = value.attachments.map(async (value) => {
@@ -476,12 +489,16 @@ export class EmailsService {
               },
             },
           },
+          select: {
+            id: true,
+          },
         });
       });
       return Promise.all(attach);
     });
     const user = await this.prisma.uSER.findUnique({
       where: { id: userId },
+      select: { id: true, email: true },
     });
     if (!user) {
       return true;
@@ -571,6 +588,16 @@ export class EmailsService {
   async changePriorities() {
     const data = await this.prisma.eMAILS.findMany({
       where: { priority: { in: ['Low', 'High', 'Critical', 'Meduim'] } },
+      select: {
+        importance: true,
+        deadline: true,
+        urgency: true,
+        senderImportance: true,
+        requiresAction: true,
+        isRead: true,
+        isCompleted: true,
+        id: true,
+      },
     });
 
     const map = data.map(async (value) => {
@@ -592,6 +619,7 @@ export class EmailsService {
       return await this.prisma.eMAILS.update({
         where: { id: value.id },
         data: { priority: priority },
+        select: { id: true },
       });
     });
 
@@ -625,7 +653,7 @@ export class EmailsService {
 
     const user = await this.prisma.uSER.findUnique({
       where: { email: email },
-      include: { emails: {} },
+      select: { id: true, email: true },
     });
 
     if (!user) {
@@ -647,7 +675,9 @@ export class EmailsService {
   }
 
   async checkUserWatchExp() {
-    const users = await this.prisma.uSER.findMany({});
+    const users = await this.prisma.uSER.findMany({
+      select: { isWatching: true, exp: true, refreshToken: true, email: true },
+    });
     const res = users.map(async (user) => {
       if (user.exp && user.isWatching) {
         const days = this.getDiffDays(user.exp.toLocaleDateString('en-CA'));

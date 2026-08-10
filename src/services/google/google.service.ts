@@ -435,6 +435,7 @@ export class GoogleService {
         isWatching: true,
         exp: res.data.expiration ? new Date(Number(res.data.expiration)) : null,
       },
+      select: { id: true },
     });
     return res;
   }

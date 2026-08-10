@@ -161,6 +161,7 @@ export class AuthService {
             refreshToken: refreshToken ? refreshToken : 'no refresh token',
             id: generateId(8),
           },
+          select: { id: true },
         });
       } else {
         await this.prisma.uSER.update({
@@ -180,6 +181,9 @@ export class AuthService {
                 : photoUrl,
             oAuthProvider: oAuthProvider,
             refreshToken: refreshToken,
+          },
+          select: {
+            id: true,
           },
         });
       }
@@ -303,6 +307,7 @@ export class AuthService {
     await this.prisma.uSER.update({
       where: { email: email },
       data: { historyId: value },
+      select: { id: true },
     });
   }
 
@@ -329,6 +334,7 @@ export class AuthService {
 
     const user = await this.prisma.uSER.findUnique({
       where: { email: decoded.email },
+      select: { fids: true },
     });
 
     if (!user) {
@@ -351,6 +357,7 @@ export class AuthService {
           push: { token: FID, platform: PLATFROM },
         },
       },
+      select: { id: true },
     });
 
     return 'done';
@@ -379,6 +386,7 @@ export class AuthService {
 
     const user = await this.prisma.uSER.findUnique({
       where: { email: decoded.email },
+      select: { fids: true },
     });
 
     if (!user) {

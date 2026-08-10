@@ -30,7 +30,10 @@ export class NotificationsService implements OnModuleInit {
     data?: Record<string, string>,
     image?: string,
   ) {
-    const user = await this.prisma.uSER.findUnique({ where: { email: email } });
+    const user = await this.prisma.uSER.findUnique({
+      where: { email: email },
+      select: { fids: true },
+    });
     if (!user) return;
 
     const fids: JsonValue[] = user.fids;
@@ -77,6 +80,7 @@ export class NotificationsService implements OnModuleInit {
             },
           },
         },
+        select: { id: true },
       });
       return { statsu: 'success', id: res };
     } catch (err) {
