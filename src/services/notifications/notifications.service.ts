@@ -39,7 +39,7 @@ export class NotificationsService implements OnModuleInit {
     const fids: JsonValue[] = user.fids;
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    const stringFids: string[] = fids.map((value) => value!['token']);
+    const stringFids: string[] = fids.map((value) => value!['fid']);
     const message: msg.FidMulticastMessage = {
       data: data ?? {},
       notification: { title: title, body: desc, imageUrl: image },

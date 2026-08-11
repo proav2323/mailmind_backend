@@ -355,10 +355,18 @@ export class AuthService {
 
     const FID = headers.fid;
     const PLATFROM = headers.platform;
+    const TOKEN = headers.token;
 
-    const fid = user.fids.find((value) => value!['token'] === FID);
+    const fid = user.fids.find((value) => value!['fid'] === FID);
 
     if (fid) {
+      const newFids = user.fids.filter((value) => value!['fid'] !== FID);
+      newFids.push({ fid: FID, token: TOKEN, platform: PLATFROM });
+      await this.prisma.uSER.update({
+        where: { email: decoded.email },
+        data: { fids: newFids as InputJsonValue[] },
+        select: { id: true },
+      });
       return 'done';
     }
 
@@ -366,7 +374,7 @@ export class AuthService {
       where: { email: decoded.email },
       data: {
         fids: {
-          push: { token: FID, platform: PLATFROM },
+          push: { fid: FID, platform: PLATFROM, token: token },
         },
       },
       select: { id: true },
