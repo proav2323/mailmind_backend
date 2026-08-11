@@ -374,7 +374,7 @@ export class AuthService {
       where: { email: decoded.email },
       data: {
         fids: {
-          push: { fid: FID, platform: PLATFROM, token: token },
+          push: { fid: FID, platform: PLATFROM, token: TOKEN },
         },
       },
       select: { id: true },
