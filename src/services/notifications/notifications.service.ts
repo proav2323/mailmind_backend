@@ -11,7 +11,7 @@ import { generateId } from '../../utils/generateId';
 export class NotificationsService implements OnModuleInit {
   constructor(private prisma: PrismaService) {}
   onModuleInit() {
-    if (!admin.getApps().length) {
+    if (!admin.getApps().length || admin.getApps().length === 0) {
       admin.initializeApp({
         credential: admin.cert(
           path.join(
@@ -50,7 +50,6 @@ export class NotificationsService implements OnModuleInit {
       priority: 'high',
       notification: {
         sound: 'default',
-        clickAction: 'OPEN_ACTIVITY_1', // Triggers targeted intent on Android devices
       },
     };
     message.webpush = {
@@ -65,7 +64,7 @@ export class NotificationsService implements OnModuleInit {
 
     try {
       await msg
-        .getMessaging(admin.getApp())
+        .getMessaging()
         .sendEachForMulticast(message)
         .then((response) => {
           console.log(
@@ -75,7 +74,7 @@ export class NotificationsService implements OnModuleInit {
             const failedFids: string[] = [];
             response.responses.forEach((resp, idx) => {
               if (!resp.success) {
-                failedFids.push(fids[idx]!['token'] as string);
+                failedFids.push(stringFids[idx]);
                 console.log(resp.error);
               }
             });
