@@ -16,7 +16,7 @@ export class NotificationsService implements OnModuleInit {
         credential: admin.cert(
           path.join(
             process.cwd(),
-            'mailmind-4ca8e-firebase-adminsdk-fbsvc-419de384cf.json',
+            'massive-vector-501914-a5-08fb4c812e2e.json',
           ),
         ),
       });
