@@ -359,6 +359,10 @@ export class AuthService {
 
     const fid = user.fids.find((value) => value!['fid'] === FID);
 
+    if (fid!['token'] === TOKEN) {
+      return 'done';
+    }
+
     if (fid) {
       const newFids = user.fids.filter((value) => value!['fid'] !== FID);
       newFids.push({ fid: FID, token: TOKEN, platform: PLATFROM });
