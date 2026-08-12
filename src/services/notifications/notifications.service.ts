@@ -103,4 +103,36 @@ export class NotificationsService implements OnModuleInit {
       console.log(err);
     }
   }
+
+  async getAllUserNotifications(userId: string) {
+    return await this.prisma.notifications.findMany({
+      where: { userId: userId },
+      select: {
+        userId: true,
+        User: false,
+        id: true,
+        body: true,
+        isSent: true,
+        seen: true,
+        title: true,
+        scheduledTime: true,
+      },
+    });
+  }
+
+  async seenUserNotifications(userId: string) {
+    const noti = await this.prisma.notifications.findMany({
+      where: { userId: userId },
+      select: { id: true, seen: true },
+    });
+
+    const update = noti.map(async (not) => {
+      return await this.prisma.notifications.update({
+        where: { id: not.id },
+        data: { seen: true },
+        select: { id: true },
+      });
+    });
+    return Promise.all(update);
+  }
 }
