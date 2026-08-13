@@ -154,7 +154,7 @@ export class GoogleService {
               maxResults: 100, // Maximum per page allowed by Google is 100 but taking to long time
               pageToken: nextPageToken,
               startHistoryId: historyId === null ? undefined : historyId,
-              historyTypes: ['messageAdded', 'labelsRemoved'],
+              historyTypes: ['messageAdded', 'labelRemoved', 'labelAdded'],
             });
 
           if (!response.ok || response.status === 500) {
