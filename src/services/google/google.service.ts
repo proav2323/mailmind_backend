@@ -154,7 +154,7 @@ export class GoogleService {
               maxResults: 100, // Maximum per page allowed by Google is 100 but taking to long time
               pageToken: nextPageToken,
               startHistoryId: historyId === null ? undefined : historyId,
-              historyTypes: ['messageAdded'],
+              historyTypes: ['messageAdded', 'labelRemoved'],
             });
 
           if (!response.ok || response.status === 500) {
@@ -186,12 +186,15 @@ export class GoogleService {
           usersEmails.push(...(record.messagesAdded ?? []));
         });
 
-        console.log(usersEmails);
+        const emailsData = await this.userGmail(usersEmails);
+        const emails = emailsData.filter((value) => value.take === true);
 
-        const emailDetail = usersEmails.map(async (email) => {
+        console.log(emails);
+
+        const emailDetail = emails.map(async (email) => {
           const res = await gmail.users.messages.get({
             userId: 'me',
-            id: email.message?.id ? email.message.id : undefined,
+            id: email.value.message?.id ? email.value.message.id : undefined,
             access_token: accessToken,
             auth: this.googleClient,
             key: process.env.GMAIL_API_KEY,
@@ -204,6 +207,32 @@ export class GoogleService {
         throw new BadRequestException(String(err));
       }
     }
+  }
+
+  async userGmail(userEmails: gmail_v1.Schema$HistoryMessageAdded[]) {
+    const emails = userEmails.map(async (value) => {
+      const email = await this.prisma.eMAILS.findUnique({
+        where: { gmailId: value.message!.id ? value.message!.id : '' },
+        select: { id: true },
+      });
+
+      if (!email) {
+        return { take: true, value: value };
+      } else {
+        await this.prisma.eMAILS.update({
+          where: { gmailId: value.message!.id ? value.message!.id : '' },
+          data: {
+            isRead: value.message?.labelIds?.find((value) => value === 'unread')
+              ? false
+              : true,
+          },
+          select: { id: true },
+        });
+        return { take: false, value: value };
+      }
+    });
+
+    return Promise.all(emails);
   }
 
   // message id is parent email id

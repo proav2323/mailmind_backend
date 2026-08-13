@@ -258,6 +258,7 @@ export class EmailsService {
         myGivenId: generateId(8),
         categories: this.categroies,
         id: value.id,
+        labelIds: value.labelIds ?? [],
       };
     });
     await this.redisService.save(
@@ -323,6 +324,7 @@ export class EmailsService {
         recievedAt: gmail_v1.Schema$MessagePartHeader | undefined;
       };
       myGivenId: string;
+      labelIds: string[];
       categories: (
         | {
             name: string;
@@ -353,6 +355,7 @@ export class EmailsService {
           from: gmail_v1.Schema$MessagePartHeader | undefined;
           recievedAt: gmail_v1.Schema$MessagePartHeader | undefined;
         };
+        labelIds: string[];
         myGivenId: string;
         categories: (
           | {
@@ -378,6 +381,7 @@ export class EmailsService {
           mimeType: string;
           attachmentId: string;
         }[];
+        labelIds: string[];
         headers: {
           subject: gmail_v1.Schema$MessagePartHeader | undefined;
           deliveredTo: gmail_v1.Schema$MessagePartHeader | undefined;
@@ -440,7 +444,9 @@ export class EmailsService {
           body: value.body,
           gmailId: value.id!,
           id: value.myGivenId,
-          isRead: false,
+          isRead: value.labelIds.find((value) => value === 'UNREAD')
+            ? false
+            : true,
           receivedAt: value.headers.recievedAt?.value
             ? new Date(value.headers.recievedAt.value)
             : new Date(Date.now()),
