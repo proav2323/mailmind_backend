@@ -154,7 +154,7 @@ export class GoogleService {
               maxResults: 100, // Maximum per page allowed by Google is 100 but taking to long time
               pageToken: nextPageToken,
               startHistoryId: historyId === null ? undefined : historyId,
-              historyTypes: ['messageAdded', 'labelRemoved'],
+              historyTypes: ['messageAdded', 'labelRemoved', 'labelAdded'],
             });
 
           if (!response.ok || response.status === 500) {
@@ -186,6 +186,7 @@ export class GoogleService {
           usersEmails.push(...(record.messagesAdded ?? []));
         });
 
+        console.log(usersEmails); // testing
         const emailsData = await this.userGmail(usersEmails);
         const emails = emailsData.filter((value) => value.take === true);
 
@@ -215,12 +216,12 @@ export class GoogleService {
         where: { gmailId: value.message!.id ? value.message!.id : '' },
         select: { id: true },
       });
-      console.log(email);
+      console.log(email); // testing
       if (!email) {
         return { take: true, value: value };
       } else {
-        console.log('running unread check');
-        console.log(value.message?.labelIds);
+        console.log('running unread check'); // tetsing
+        console.log(value.message?.labelIds); // tetsing
         await this.prisma.eMAILS.update({
           where: { id: email.id },
           data: {
