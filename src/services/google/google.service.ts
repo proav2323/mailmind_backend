@@ -154,7 +154,7 @@ export class GoogleService {
               maxResults: 100, // Maximum per page allowed by Google is 100 but taking to long time
               pageToken: nextPageToken,
               startHistoryId: historyId === null ? undefined : historyId,
-              historyTypes: ['messageAdded', 'labelRemoved', 'labelAdded'],
+              historyTypes: ['messageAdded', 'labelsRemoved'],
             });
 
           if (!response.ok || response.status === 500) {
@@ -459,7 +459,7 @@ export class GoogleService {
       userId: 'me',
       requestBody: {
         topicName: `projects/${process.env.GCP_PROJECT_ID}/topics/gmail-notification`,
-        labelIds: ['INBOX', 'UNREAD'], // Optional: filter down to specific labels
+        labelIds: ['INBOX'], // Optional: filter down to specific labels
         labelFilterAction: 'include',
       },
     });
