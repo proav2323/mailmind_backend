@@ -188,7 +188,6 @@ export class GoogleService {
           usersEmails.push(...(record.labelsRemoved ?? []));
         });
 
-        console.log(usersEmails); // testing
         const emailsData = await this.userGmail(usersEmails);
         const emails = emailsData.filter((value) => value.take === true);
 
@@ -218,12 +217,9 @@ export class GoogleService {
         where: { gmailId: value.message!.id ? value.message!.id : '' },
         select: { id: true },
       });
-      console.log(email); // testing
       if (!email) {
         return { take: true, value: value };
       } else {
-        console.log('running unread check'); // tetsing
-        console.log(value.message?.labelIds); // tetsing
         await this.prisma.eMAILS.update({
           where: { id: email.id },
           data: {
