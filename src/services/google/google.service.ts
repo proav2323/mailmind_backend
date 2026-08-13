@@ -215,7 +215,7 @@ export class GoogleService {
         where: { gmailId: value.message!.id ? value.message!.id : '' },
         select: { id: true },
       });
-
+      console.log(email);
       if (!email) {
         return { take: true, value: value };
       } else {
@@ -458,7 +458,7 @@ export class GoogleService {
       userId: 'me',
       requestBody: {
         topicName: `projects/${process.env.GCP_PROJECT_ID}/topics/gmail-notification`,
-        labelIds: ['INBOX'], // Optional: filter down to specific labels
+        labelIds: ['INBOX', 'UNREAD'], // Optional: filter down to specific labels
         labelFilterAction: 'include',
       },
     });
