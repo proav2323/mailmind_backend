@@ -444,9 +444,10 @@ export class EmailsService {
           body: value.body,
           gmailId: value.id!,
           id: value.myGivenId,
-          isRead: value.labelIds.find((value) => value === 'UNREAD')
-            ? false
-            : true,
+          isRead:
+            value.labelIds.find((value) => value === 'UNREAD') !== undefined
+              ? false
+              : true,
           receivedAt: value.headers.recievedAt?.value
             ? new Date(value.headers.recievedAt.value)
             : new Date(Date.now()),

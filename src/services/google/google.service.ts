@@ -219,12 +219,16 @@ export class GoogleService {
       if (!email) {
         return { take: true, value: value };
       } else {
+        console.log('running unread check');
+        console.log(value.message?.labelIds);
         await this.prisma.eMAILS.update({
-          where: { gmailId: value.message!.id ? value.message!.id : '' },
+          where: { id: email.id },
           data: {
-            isRead: value.message?.labelIds?.find((value) => value === 'UNREAD')
-              ? false
-              : true,
+            isRead:
+              value.message?.labelIds?.find((value) => value === 'UNREAD') !==
+              undefined
+                ? false
+                : true,
           },
           select: { id: true },
         });
