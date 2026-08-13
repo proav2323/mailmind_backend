@@ -154,7 +154,7 @@ export class GoogleService {
               maxResults: 100, // Maximum per page allowed by Google is 100 but taking to long time
               pageToken: nextPageToken,
               startHistoryId: historyId === null ? undefined : historyId,
-              historyTypes: ['messageAdded', 'labelRemoved', 'labelAdded'],
+              historyTypes: ['messageAdded', 'labelRemoved'],
               labelId: 'UNREAD',
             });
 
@@ -185,6 +185,7 @@ export class GoogleService {
         } while (nextPageToken);
         historyRecords.forEach((record) => {
           usersEmails.push(...(record.messagesAdded ?? []));
+          usersEmails.push(...(record.labelsRemoved ?? []));
         });
 
         console.log(usersEmails); // testing
