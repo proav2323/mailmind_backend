@@ -155,6 +155,7 @@ export class GoogleService {
               pageToken: nextPageToken,
               startHistoryId: historyId === null ? undefined : historyId,
               historyTypes: ['messageAdded', 'labelRemoved', 'labelAdded'],
+              labelId: 'UNREAD',
             });
 
           if (!response.ok || response.status === 500) {
