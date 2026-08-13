@@ -222,7 +222,7 @@ export class GoogleService {
         await this.prisma.eMAILS.update({
           where: { gmailId: value.message!.id ? value.message!.id : '' },
           data: {
-            isRead: value.message?.labelIds?.find((value) => value === 'unread')
+            isRead: value.message?.labelIds?.find((value) => value === 'UNREAD')
               ? false
               : true,
           },
