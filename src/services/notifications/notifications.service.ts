@@ -151,6 +151,7 @@ export class NotificationsService implements OnModuleInit {
         seen: true,
         title: true,
         scheduledTime: true,
+        data: true,
       },
     });
   }
