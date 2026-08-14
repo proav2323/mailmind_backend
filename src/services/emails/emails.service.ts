@@ -519,6 +519,7 @@ export class EmailsService {
             aiArrays[0].subject as string,
             aiArrays[0].summary as string,
             user.email,
+            { gmailId: response[0].id! },
           );
         } else {
           await this.notidicationService.sendPushNotifications(

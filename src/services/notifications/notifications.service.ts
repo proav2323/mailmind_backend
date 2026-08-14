@@ -7,6 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { JsonValue } from '../../generated/prisma/internal/prismaNamespace';
 import { generateId } from '../../utils/generateId';
 import { JwtService } from '@nestjs/jwt';
+import { InputJsonValue } from '@prisma/client/runtime/client';
 
 @Injectable()
 export class NotificationsService implements OnModuleInit {
@@ -96,6 +97,7 @@ export class NotificationsService implements OnModuleInit {
               isSent: true,
               title: title,
               body: desc,
+              data: data ? (data as InputJsonValue) : undefined,
               scheduledTime: new Date(),
             },
           },

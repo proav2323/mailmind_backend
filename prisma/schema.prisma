@@ -67,6 +67,7 @@ model notifications {
   body          String
   scheduledTime DateTime
   isSent        Boolean
+  data Json? 
   seen Boolean @default(false)
   User          USER     @relation(fields: [userId], references: [id])
 }
