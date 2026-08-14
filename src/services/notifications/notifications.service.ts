@@ -199,4 +199,11 @@ export class NotificationsService implements OnModuleInit {
     });
     return Promise.all(update);
   }
+
+  async deleteOldNotifications() {
+    await this.prisma.notifications.deleteMany({
+      where: { seen: true },
+    });
+    return 'done';
+  }
 }
