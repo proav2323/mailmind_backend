@@ -38,9 +38,12 @@ export class EmailsController {
     );
   }
 
-  @Get(':id')
-  async getUserEmails(@Param('id') id: string) {
-    return await this.emailService.getUserAllEmails(id);
+  @Get('user')
+  async getUserEmails(
+    @Req() req: Request,
+    @Headers() headers: Record<string, string>,
+  ) {
+    return await this.emailService.getUserAllEmails(req, headers);
   }
 
   @Get('category/:category')

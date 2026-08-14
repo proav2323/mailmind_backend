@@ -1,15 +1,19 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
 import * as admin from 'firebase-admin/app';
 import * as msg from 'firebase-admin/messaging';
 import * as path from 'path';
 import { PrismaService } from '../prisma/prisma.service';
 import { JsonValue } from '../../generated/prisma/internal/prismaNamespace';
 import { generateId } from '../../utils/generateId';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class NotificationsService implements OnModuleInit {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private JWT: JwtService,
+  ) {}
   onModuleInit() {
     if (!admin.getApps().length || admin.getApps().length === 0) {
       admin.initializeApp({
@@ -104,9 +108,38 @@ export class NotificationsService implements OnModuleInit {
     }
   }
 
-  async getAllUserNotifications(userId: string) {
+  async getAllUserNotifications(req: Request, headers: Record<string, string>) {
+    const token = (req as Request & { cookies?: Record<string, string> })
+      .cookies?.token;
+    let secondToken: string | undefined = undefined;
+    if (headers.authorization !== null && headers.authorization !== undefined) {
+      secondToken = headers.authorization.split(' ')[1];
+    }
+
+    if (!token && !secondToken) {
+      console.log('no token');
+      throw new BadRequestException('token not valid');
+    }
+
+    const decoded = this.JWT.verify<{
+      email: string;
+      scopes: string[];
+      scope: string;
+    }>(token !== undefined && token !== null ? token : secondToken!, {
+      secret: process.env.JWT_SECRET,
+    });
+
+    const user = await this.prisma.uSER.findUnique({
+      where: { email: decoded.email },
+      select: { id: true },
+    });
+
+    if (!user) {
+      throw new BadRequestException('user not found');
+    }
+
     return await this.prisma.notifications.findMany({
-      where: { userId: userId },
+      where: { userId: user.id },
       select: {
         userId: true,
         User: false,
@@ -120,9 +153,38 @@ export class NotificationsService implements OnModuleInit {
     });
   }
 
-  async seenUserNotifications(userId: string) {
+  async seenUserNotifications(req: Request, headers: Record<string, string>) {
+    const token = (req as Request & { cookies?: Record<string, string> })
+      .cookies?.token;
+    let secondToken: string | undefined = undefined;
+    if (headers.authorization !== null && headers.authorization !== undefined) {
+      secondToken = headers.authorization.split(' ')[1];
+    }
+
+    if (!token && !secondToken) {
+      console.log('no token');
+      throw new BadRequestException('token not valid');
+    }
+
+    const decoded = this.JWT.verify<{
+      email: string;
+      scopes: string[];
+      scope: string;
+    }>(token !== undefined && token !== null ? token : secondToken!, {
+      secret: process.env.JWT_SECRET,
+    });
+
+    const user = await this.prisma.uSER.findUnique({
+      where: { email: decoded.email },
+      select: { id: true },
+    });
+
+    if (!user) {
+      throw new BadRequestException('user not found');
+    }
+
     const noti = await this.prisma.notifications.findMany({
-      where: { userId: userId },
+      where: { userId: user.id },
       select: { id: true, seen: true },
     });
 

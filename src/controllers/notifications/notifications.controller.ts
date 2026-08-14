@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Param, Get, Put } from '@nestjs/common';
+import { Body, Controller, Post, Get, Put, Req, Headers } from '@nestjs/common';
 import { NotificationsService } from '../../services/notifications/notifications.service';
 
 @Controller('notifications')
@@ -25,13 +25,19 @@ export class NotificationsController {
     return { status: 'send' };
   }
 
-  @Get(':id')
-  async getUserNotifications(@Param('id') id: string) {
-    return await this.notificationService.getAllUserNotifications(id);
+  @Get('user')
+  async getUserNotifications(
+    @Req() req: Request,
+    @Headers() headers: Record<string, string>,
+  ) {
+    return await this.notificationService.getAllUserNotifications(req, headers);
   }
 
-  @Put('seen/:id')
-  async seenNotifications(@Param('id') id: string) {
-    return await this.notificationService.seenUserNotifications(id);
+  @Put('seen')
+  async seenNotifications(
+    @Req() req: Request,
+    @Headers() headers: Record<string, string>,
+  ) {
+    return await this.notificationService.seenUserNotifications(req, headers);
   }
 }
