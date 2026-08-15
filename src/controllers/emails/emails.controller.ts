@@ -5,6 +5,7 @@ import {
   Headers,
   Param,
   Post,
+  Query,
   Req,
 } from '@nestjs/common';
 import { EmailsService } from '../../services/emails/emails.service';
@@ -54,5 +55,15 @@ export class EmailsController {
   @Get('email/:id')
   async getEmail(@Param('id') id: string) {
     return await this.emailService.getSingleEmail(id);
+  }
+
+  @Get('filter')
+  async getEmailsFilter(
+    @Req() req: Request,
+    @Headers() headers: Record<string, string>,
+    @Query('category') category: string,
+    @Query('priority') priority: string,
+  ) {
+    return await this.emailService.filter(priority, category, req, headers);
   }
 }

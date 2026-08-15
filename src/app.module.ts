@@ -20,6 +20,8 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { NotificationsService } from './services/notifications/notifications.service';
 import { NotificationsController } from './controllers/notifications/notifications.controller';
 import { EmailPubSubService } from './services/email-pub-sub/email-pub-sub.service';
+import { CategoriesService } from './services/categories/categories.service';
+import { CategoriesController } from './controllers/categories/categories.controller';
 
 @Module({
   imports: [
@@ -36,6 +38,7 @@ import { EmailPubSubService } from './services/email-pub-sub/email-pub-sub.servi
     EmailsController,
     CronController,
     NotificationsController,
+    CategoriesController,
   ],
   providers: [
     AppService,
@@ -51,6 +54,7 @@ import { EmailPubSubService } from './services/email-pub-sub/email-pub-sub.servi
     CalenderService,
     NotificationsService,
     EmailPubSubService,
+    CategoriesService,
   ],
 })
 export class AppModule {}
