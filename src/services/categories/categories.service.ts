@@ -15,6 +15,48 @@ export class CategoriesService {
     private prisma: PrismaService,
   ) {}
 
+  categroies = [
+    { name: 'assignment' },
+    { name: 'project' },
+    { name: 'syllabus' },
+    { name: 'task' },
+    { name: 'meeting' },
+    { name: 'review' },
+    { name: 'interview' },
+    { name: 'course' },
+    { name: 'exam' },
+    { name: 'submission' },
+    { name: 'invoice' },
+    { name: 'report' },
+    { name: 'schedule' },
+    { name: 'urgent' },
+    { name: 'education' },
+    { name: 'work' },
+    { name: 'school' },
+    { name: 'office' },
+    { name: 'OTP' },
+    { name: 'event' },
+    { name: 'hackathons' },
+    { name: 'class', desc: '' },
+    { name: 'annoucements' },
+    { name: 'finace' },
+    { name: 'billing' },
+    { name: 'placement' },
+    { name: 'reminder' },
+    { name: 'fees' },
+    { name: 'scholarship' },
+    { name: 'timetable' },
+    { name: 'academic' },
+    { name: 'holiday' },
+    { name: 'club' },
+    { name: 'intership' },
+    { name: 'research' },
+    { name: 'Finace' },
+    { name: 'personal' },
+    { name: 'spam' },
+    { name: 'social' },
+  ];
+
   async getUserCategories(req: Request, headers: Record<string, string>) {
     const token = (req as Request & { cookies?: Record<string, string> })
       .cookies?.token;
@@ -93,11 +135,19 @@ export class CategoriesService {
       throw new BadRequestException('category found');
     }
 
+    const fixedCategores = this.categroies.filter(
+      (value) => value.name === name.toLocaleLowerCase(),
+    );
+
+    if (fixedCategores.length !== 0) {
+      throw new BadRequestException('category found');
+    }
+
     return await this.prisma.cATEGORIES.create({
       data: {
         userId: user.id,
         id: generateId(8),
-        name: name,
+        name: name.toLocaleLowerCase(),
       },
       select: { name: true, id: true },
     });
