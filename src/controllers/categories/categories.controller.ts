@@ -18,17 +18,17 @@ export class CategoriesController {
   async getUserCatgeoires(
     @Req() req: Request,
     @Headers() headers: Record<string, string>,
-    @Body() { name }: { name: string },
   ) {
-    return await this.categoryService.addCategory(req, headers, name);
+    return await this.categoryService.getUserCategories(req, headers);
   }
 
   @Post('add')
   async addCategory(
     @Req() req: Request,
     @Headers() headers: Record<string, string>,
+    @Body() { name }: { name: string },
   ) {
-    return await this.categoryService.getUserCategories(req, headers);
+    return await this.categoryService.addCategory(req, headers, name);
   }
 
   @Delete('delete/:id')
