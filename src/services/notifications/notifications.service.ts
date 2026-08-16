@@ -153,6 +153,9 @@ export class NotificationsService implements OnModuleInit {
         scheduledTime: true,
         data: true,
       },
+      orderBy: {
+        scheduledTime: 'desc',
+      },
     });
   }
 

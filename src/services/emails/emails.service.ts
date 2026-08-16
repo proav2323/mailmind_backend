@@ -810,6 +810,10 @@ export class EmailsService {
         isStared: true,
         priority: true,
         aiPriority: true,
+        receivedAt: true,
+      },
+      orderBy: {
+        receivedAt: 'desc',
       },
     });
   }
@@ -827,6 +831,10 @@ export class EmailsService {
         isStared: true,
         priority: true,
         aiPriority: true,
+        receivedAt: true,
+      },
+      orderBy: {
+        receivedAt: 'desc',
       },
     });
   }
@@ -842,6 +850,7 @@ export class EmailsService {
         GmailSubject: true,
         priority: true,
         aiPriority: true,
+        receivedAt: true,
         category: true,
         deadline: true,
         sender: true,
@@ -915,6 +924,10 @@ export class EmailsService {
         isStared: true,
         priority: true,
         aiPriority: true,
+        receivedAt: true,
+      },
+      orderBy: {
+        receivedAt: 'desc',
       },
     });
   }
