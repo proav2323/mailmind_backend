@@ -599,14 +599,16 @@ export class EmailsService {
       return 'Expired';
     }
     if (score > 0 && score <= 30) return 'Low';
-    else if (score > 30 && score <= 50) return 'Meduim';
+    else if (score > 30 && score <= 50) return 'Medium';
     else if (score > 50 && score <= 80) return 'High';
     else return 'Critical';
   }
 
   async changePriorities() {
     const data = await this.prisma.eMAILS.findMany({
-      where: { priority: { in: ['Low', 'High', 'Critical', 'Meduim'] } },
+      where: {
+        priority: { in: ['Low', 'High', 'Critical', 'Medium', 'Meduim'] },
+      },
       select: {
         importance: true,
         deadline: true,
