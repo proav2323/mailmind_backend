@@ -85,6 +85,14 @@ export class CategoriesService {
       throw new BadRequestException('user not found');
     }
 
+    const categories = await this.prisma.cATEGORIES.findMany({
+      where: { name: name },
+    });
+
+    if (categories.length !== 0) {
+      throw new BadRequestException('category found');
+    }
+
     return await this.prisma.cATEGORIES.create({
       data: {
         userId: user.id,
