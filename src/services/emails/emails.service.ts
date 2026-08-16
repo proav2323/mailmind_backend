@@ -813,6 +813,7 @@ export class EmailsService {
         priority: true,
         aiPriority: true,
         receivedAt: true,
+        isRead: true,
       },
       orderBy: {
         receivedAt: 'desc',
@@ -834,6 +835,7 @@ export class EmailsService {
         priority: true,
         aiPriority: true,
         receivedAt: true,
+        isRead: true,
       },
       orderBy: {
         receivedAt: 'desc',
@@ -859,6 +861,7 @@ export class EmailsService {
         lastOpenedAt: true,
         isStared: true,
         isCompleted: true,
+        isRead: true,
         attachments: {
           select: { attachmentId: true, mimetype: true, file: true },
         },
@@ -927,6 +930,7 @@ export class EmailsService {
         priority: true,
         aiPriority: true,
         receivedAt: true,
+        isRead: true,
       },
       orderBy: {
         receivedAt: 'desc',
