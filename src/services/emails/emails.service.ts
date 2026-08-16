@@ -814,6 +814,7 @@ export class EmailsService {
         aiPriority: true,
         receivedAt: true,
         isRead: true,
+        gmailId: true,
       },
       orderBy: {
         receivedAt: 'desc',
@@ -836,6 +837,7 @@ export class EmailsService {
         aiPriority: true,
         receivedAt: true,
         isRead: true,
+        gmailId: true,
       },
       orderBy: {
         receivedAt: 'desc',
@@ -931,6 +933,7 @@ export class EmailsService {
         aiPriority: true,
         receivedAt: true,
         isRead: true,
+        gmailId: true,
       },
       orderBy: {
         receivedAt: 'desc',
