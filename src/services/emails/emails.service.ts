@@ -847,7 +847,7 @@ export class EmailsService {
 
   async getSingleEmail(id: string) {
     return await this.prisma.eMAILS.findUnique({
-      where: { id: id },
+      where: { gmailId: id },
       select: {
         id: true,
         subject: true,
