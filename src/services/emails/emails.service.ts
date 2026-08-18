@@ -188,7 +188,7 @@ export class EmailsService {
       throw new BadRequestException('no access token and id token found');
     }
 
-    if (!user.isWatching && user.historyId !== null) {
+    if (!user.isWatching) {
       await this.googleService.watch(
         accessToken,
         user.refreshToken,
@@ -265,9 +265,10 @@ export class EmailsService {
         labelIds: value.labelIds ?? [],
       };
     });
+    const randomId = generateId(8);
     await this.redisService.save(
       JSON.stringify(response),
-      `${userId}-emails`,
+      `${randomId}-emails`,
       3600,
     );
     try {
@@ -281,8 +282,8 @@ export class EmailsService {
         this.http.post(
           `${process.env.AI_BACKEND_URL}/email`,
           {
-            data: `${userId}-emails`,
-            userId: userId,
+            data: `${randomId}-emails`,
+            userId: randomId,
             noti: not !== undefined ? not : false,
           },
           {
