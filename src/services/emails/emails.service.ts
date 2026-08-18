@@ -283,7 +283,8 @@ export class EmailsService {
           `${process.env.AI_BACKEND_URL}/email`,
           {
             data: `${randomId}-emails`,
-            userId: randomId,
+            userId: userId,
+            aiId: randomId,
             noti: not !== undefined ? not : false,
           },
           {
