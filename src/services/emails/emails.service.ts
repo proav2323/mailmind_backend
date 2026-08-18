@@ -879,6 +879,7 @@ export class EmailsService {
         },
         body: true,
         requiresAction: true,
+        bodyInOrder: true,
       },
     });
   }
