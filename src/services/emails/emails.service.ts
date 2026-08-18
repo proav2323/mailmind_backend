@@ -16,7 +16,7 @@ import { SocketGateway } from '../../gateways/socket/socket.gateway';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { NotificationsService } from '../notifications/notifications.service';
-import { InputJsonArray } from '../../generated/prisma/internal/prismaNamespace';
+import { InputJsonValue } from '@prisma/client/runtime/client';
 
 @Injectable()
 export class EmailsService {
@@ -480,7 +480,7 @@ export class EmailsService {
           requiresAction: aiData.requireAction as boolean,
           senderImportance: aiData.senderImportance as number,
           urgency: aiData.urgency as number,
-          bodyInOrder: value.bodyInOrder as InputJsonArray,
+          bodyInOrder: value.bodyInOrder as InputJsonValue[],
           priority: this.getEmailPrority(
             score,
             aiData.deadline as string | null,
