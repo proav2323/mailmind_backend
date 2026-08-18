@@ -868,6 +868,7 @@ export class EmailsService {
           select: { attachmentId: true, mimetype: true, file: true },
         },
         body: true,
+        requiresAction: true,
       },
     });
   }
