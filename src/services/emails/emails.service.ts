@@ -16,7 +16,6 @@ import { SocketGateway } from '../../gateways/socket/socket.gateway';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { NotificationsService } from '../notifications/notifications.service';
-import { InputJsonValue } from '@prisma/client/runtime/client';
 
 @Injectable()
 export class EmailsService {
@@ -189,7 +188,7 @@ export class EmailsService {
       throw new BadRequestException('no access token and id token found');
     }
 
-    if (!user.isWatching) {
+    if (!user.isWatching && user.historyId !== null) {
       await this.googleService.watch(
         accessToken,
         user.refreshToken,
@@ -480,7 +479,7 @@ export class EmailsService {
           requiresAction: aiData.requireAction as boolean,
           senderImportance: aiData.senderImportance as number,
           urgency: aiData.urgency as number,
-          bodyInOrder: value.bodyInOrder as InputJsonValue[],
+          bodyInOrder: value.bodyInOrder,
           priority: this.getEmailPrority(
             score,
             aiData.deadline as string | null,
