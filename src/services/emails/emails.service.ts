@@ -877,7 +877,6 @@ export class EmailsService {
         attachments: {
           select: { attachmentId: true, mimetype: true, file: true },
         },
-        body: true,
         requiresAction: true,
         bodyInOrder: true,
       },
