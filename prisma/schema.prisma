@@ -53,6 +53,7 @@ model EMAILS {
   urgency Int
   senderImportance Int
   isCompleted Boolean
+  bodyInOrder Json[]
   tags       String[]
   isStared Boolean @default(false)
   updatedAt  DateTime @updatedAt @default(now())

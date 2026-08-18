@@ -16,6 +16,7 @@ import { SocketGateway } from '../../gateways/socket/socket.gateway';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { NotificationsService } from '../notifications/notifications.service';
+import { InputJsonArray } from '../../generated/prisma/internal/prismaNamespace';
 
 @Injectable()
 export class EmailsService {
@@ -250,9 +251,13 @@ export class EmailsService {
       ); // extrach attachments
       const headersImpData =
         this.googleService.extractImporantDetailsFromEmailHeaders(value);
+      const bodyInOrder = this.googleService.extractEmailBodyInOrder(
+        value.payload,
+      );
 
       return {
         body: body,
+        bodyInOrder: bodyInOrder,
         attachments: attachments,
         headers: headersImpData,
         myGivenId: generateId(8),
@@ -312,6 +317,7 @@ export class EmailsService {
         text: string;
         html: string;
       };
+      bodyInOrder: { type: string; data: string; i: number }[];
       attachments: {
         filename: string;
         mimeType: string;
@@ -344,6 +350,7 @@ export class EmailsService {
           text: string;
           html: string;
         };
+        bodyInOrder: { type: string; data: string; i: number }[];
         attachments: {
           filename: string;
           mimeType: string;
@@ -376,6 +383,7 @@ export class EmailsService {
           text: string;
           html: string;
         };
+        bodyInOrder: { type: string; data: string; i: number }[];
         attachments: {
           filename: string;
           mimeType: string;
@@ -472,6 +480,7 @@ export class EmailsService {
           requiresAction: aiData.requireAction as boolean,
           senderImportance: aiData.senderImportance as number,
           urgency: aiData.urgency as number,
+          bodyInOrder: value.bodyInOrder as InputJsonArray,
           priority: this.getEmailPrority(
             score,
             aiData.deadline as string | null,

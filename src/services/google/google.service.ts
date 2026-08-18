@@ -358,6 +358,45 @@ export class GoogleService {
     return { text, html };
   }
 
+  extractEmailBodyInOrder(payload: gmail_v1.Schema$MessagePart | undefined) {
+    const body: { type: string; data: string; i: number }[] = [];
+
+    if (!payload) return body;
+
+    const parsePart = (part: gmail_v1.Schema$MessagePart, idx: number) => {
+      if (!part) return;
+
+      // Case 1: The current part has the data directly
+      if (part.body && part.body.data) {
+        const decodedData = this.decodeBase64Url(part.body.data);
+        if (part.mimeType === 'text/plain') {
+          body.push({ type: 'text/plain', data: decodedData, i: idx });
+        } else if (part.mimeType === 'text/html') {
+          body.push({ type: 'text/html', data: decodedData, i: idx });
+        }
+      }
+
+      // Case 2: The email has nested sub-parts (Common in complex multipart emails)
+      if (part.parts && part.parts.length > 0) {
+        for (const subPart of part.parts) {
+          const idx = part.parts.findIndex((value) => value === part);
+          parsePart(subPart, idx);
+        }
+      }
+    };
+
+    if (payload.body && payload.body.data) {
+      parsePart(payload, 0);
+    } else if (payload.parts) {
+      for (const part of payload.parts) {
+        const idx = payload.parts.findIndex((value) => value === part);
+        parsePart(part, idx);
+      }
+    }
+
+    return body;
+  }
+
   private decodeBase64Url(base64UrlStr: string): string {
     // Replace URL-safe characters back to standard Base64 characters
     let base64 = base64UrlStr.replace(/-/g, '+').replace(/_/g, '/');
