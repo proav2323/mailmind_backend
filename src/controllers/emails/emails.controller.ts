@@ -66,4 +66,19 @@ export class EmailsController {
   ) {
     return await this.emailService.filter(priority, category, req, headers);
   }
+
+  @Get('attachment/:messageId/:id')
+  async getAttachment(
+    @Param('messageId') messageId: string,
+    @Param('id') id: string,
+    @Req() req: Request,
+    @Headers() headers: Record<string, string>,
+  ) {
+    return await this.emailService.getAttachmentFromId(
+      req,
+      headers,
+      id,
+      messageId,
+    );
+  }
 }
