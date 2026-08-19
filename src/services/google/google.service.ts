@@ -510,4 +510,34 @@ export class GoogleService {
     });
     return res;
   }
+
+  async getAttachmentFromId(
+    id: string,
+    messageId: string,
+    accessToken: string,
+    idToken: string,
+    refreshToken: string,
+  ) {
+    this.googleClient.setCredentials({
+      access_token: accessToken,
+      id_token: idToken,
+      refresh_token: refreshToken,
+    });
+    const gmail = google.gmail({
+      key: process.env.GMAIL_API_KEY,
+      auth: this.googleClient,
+      version: 'v1',
+    });
+
+    const attachmentData = await gmail.users.messages.attachments.get({
+      userId: 'me',
+      id: id,
+      messageId: messageId,
+    });
+
+    const base64Data = attachmentData.data.data
+      ? attachmentData.data.data.replace(/-/g, '+').replace(/_/g, '/')
+      : 'no attachment found';
+    return { data: base64Data };
+  }
 }
