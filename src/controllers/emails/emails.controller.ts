@@ -5,6 +5,7 @@ import {
   Headers,
   Param,
   Post,
+  Put,
   Query,
   Req,
 } from '@nestjs/common';
@@ -80,5 +81,33 @@ export class EmailsController {
       id,
       messageId,
     );
+  }
+
+  @Put('read/:emailId/:gmailId')
+  async readEmail(
+    @Req() req: Request,
+    @Headers() headers: Record<string, string>,
+    @Param('emailId') id: string,
+    @Param('gmailId') gmailId: string,
+  ) {
+    return await this.emailService.read(id, gmailId, req, headers);
+  }
+
+  @Put('complete/:emailId')
+  async completeEmail(
+    @Req() req: Request,
+    @Headers() headers: Record<string, string>,
+    @Param('emailId') id: string,
+  ) {
+    return await this.emailService.complete(id, req, headers);
+  }
+
+  @Put('star/:emailId')
+  async starEmail(
+    @Req() req: Request,
+    @Headers() headers: Record<string, string>,
+    @Param('emailId') id: string,
+  ) {
+    return await this.emailService.toggleStar(id, req, headers);
   }
 }

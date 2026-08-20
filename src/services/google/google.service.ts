@@ -540,4 +540,30 @@ export class GoogleService {
       : 'no attachment found';
     return { data: base64Data };
   }
+
+  async read(
+    accessToken: string,
+    idToken: string,
+    refreshToken: string,
+    messageId: string,
+  ) {
+    this.googleClient.setCredentials({
+      access_token: accessToken,
+      id_token: idToken,
+      refresh_token: refreshToken,
+    });
+    const gmail = google.gmail({
+      key: process.env.GMAIL_API_KEY,
+      auth: this.googleClient,
+      version: 'v1',
+    });
+
+    const data = await gmail.users.messages.modify({
+      userId: 'me',
+      id: messageId,
+      requestBody: { removeLabelIds: ['UNREAD'] },
+    });
+
+    return data.data;
+  }
 }
