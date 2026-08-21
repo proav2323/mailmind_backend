@@ -1132,6 +1132,10 @@ export class EmailsService {
     }
 
     await this.googleService.read(accessToken, idToken, refreshToken, gmailId);
+    await this.prisma.eMAILS.update({
+      where: { id: emailId },
+      data: { isRead: true, lastOpenedAt: new Date(Date.now()) },
+    });
     return 'done';
   }
 
