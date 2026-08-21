@@ -781,7 +781,11 @@ export class EmailsService {
     return Promise.all(res);
   }
 
-  async getUserAllEmails(req: Request, headers: Record<string, string>) {
+  async getUserAllEmails(
+    req: Request,
+    headers: Record<string, string>,
+    cursor?: string,
+  ) {
     const token = (req as Request & { cookies?: Record<string, string> })
       .cookies?.token;
     let secondToken: string | undefined = undefined;
@@ -810,7 +814,7 @@ export class EmailsService {
     if (!user) {
       throw new BadRequestException('user not found');
     }
-    return await this.prisma.eMAILS.findMany({
+    const emails = await this.prisma.eMAILS.findMany({
       where: { userId: user.id },
       select: {
         id: true,
@@ -829,30 +833,25 @@ export class EmailsService {
       orderBy: {
         receivedAt: 'desc',
       },
+      take: 20,
+      ...(cursor
+        ? {
+            skip: 1,
+            cursor: {
+              id: cursor,
+            },
+          }
+        : {}),
     });
-  }
 
-  async getCategoryEmails(category: string) {
-    return await this.prisma.eMAILS.findMany({
-      where: { category: category },
-      select: {
-        id: true,
-        GmailSubject: true,
-        subject: true,
-        summary: true,
-        category: true,
-        sender: true,
-        isStared: true,
-        priority: true,
-        aiPriority: true,
-        receivedAt: true,
-        isRead: true,
-        gmailId: true,
-      },
-      orderBy: {
-        receivedAt: 'desc',
-      },
-    });
+    const nextCursor =
+      emails.length === 20 ? emails[emails.length - 1].id : null;
+
+    return {
+      emails,
+      nextCursor,
+      hasMore: emails.length === 20,
+    };
   }
 
   async getSingleEmail(id: string) {
@@ -888,6 +887,7 @@ export class EmailsService {
     category: string | undefined | null,
     req: Request,
     headers: Record<string, string>,
+    cursor?: string,
   ) {
     const token = (req as Request & { cookies?: Record<string, string> })
       .cookies?.token;
@@ -930,8 +930,9 @@ export class EmailsService {
       query['category'] = category;
     }
 
-    return await this.prisma.eMAILS.findMany({
+    const emails = await this.prisma.eMAILS.findMany({
       where: query,
+      take: 20,
       select: {
         id: true,
         GmailSubject: true,
@@ -949,7 +950,23 @@ export class EmailsService {
       orderBy: {
         receivedAt: 'desc',
       },
+      ...(cursor
+        ? {
+            skip: 1,
+            cursor: {
+              id: cursor,
+            },
+          }
+        : {}),
     });
+
+    const nextCursor =
+      emails.length === 20 ? emails[emails.length - 1].id : null;
+    return {
+      emails,
+      nextCursor,
+      hasMore: emails.length === 20,
+    };
   }
 
   async getAttachmentFromId(

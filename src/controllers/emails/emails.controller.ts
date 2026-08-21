@@ -44,13 +44,9 @@ export class EmailsController {
   async getUserEmails(
     @Req() req: Request,
     @Headers() headers: Record<string, string>,
+    @Query('cursor') cursor: string,
   ) {
-    return await this.emailService.getUserAllEmails(req, headers);
-  }
-
-  @Get('category/:category')
-  async getCatgeoryEmails(@Param('category') category: string) {
-    return await this.emailService.getCategoryEmails(category);
+    return await this.emailService.getUserAllEmails(req, headers, cursor);
   }
 
   @Get('email/:id')
@@ -64,8 +60,15 @@ export class EmailsController {
     @Headers() headers: Record<string, string>,
     @Query('category') category: string,
     @Query('priority') priority: string,
+    @Query('cursor') cursor: string,
   ) {
-    return await this.emailService.filter(priority, category, req, headers);
+    return await this.emailService.filter(
+      priority,
+      category,
+      req,
+      headers,
+      cursor,
+    );
   }
 
   @Get('attachment/:messageId/:id')
