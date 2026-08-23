@@ -61,10 +61,16 @@ export class EmailsController {
     @Query('category') category: string,
     @Query('priority') priority: string,
     @Query('cursor') cursor: string,
+    @Query('starred') starred: string,
+    @Query('dateStart') start: string,
+    @Query('dateEnd') end: string,
   ) {
     return await this.emailService.filter(
       priority,
       category,
+      starred ? Boolean(starred) : undefined,
+      start,
+      end,
       req,
       headers,
       cursor,

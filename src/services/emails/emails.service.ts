@@ -885,6 +885,9 @@ export class EmailsService {
   async filter(
     priority: string | undefined | null,
     category: string | undefined | null,
+    starred: boolean | undefined,
+    dateStart: string | null,
+    dateEnd: string | null,
     req: Request,
     headers: Record<string, string>,
     cursor?: string,
@@ -921,13 +924,30 @@ export class EmailsService {
     const query: {
       priority: string | undefined;
       category: string | undefined;
+      isStared: boolean | undefined;
       userId: string;
-    } = { priority: undefined, category: undefined, userId: user.id };
+      receivedAt: { gte: Date; lte: Date } | undefined;
+    } = {
+      priority: undefined,
+      category: undefined,
+      userId: user.id,
+      isStared: undefined,
+      receivedAt: undefined,
+    };
     if (priority) {
       query['priority'] = priority;
     }
     if (category) {
       query['category'] = category;
+    }
+    if (starred) {
+      query['isStared'] = starred;
+    }
+    if (dateEnd && dateStart) {
+      query['receivedAt'] = {
+        gte: new Date(dateStart),
+        lte: new Date(dateEnd),
+      };
     }
 
     const emails = await this.prisma.eMAILS.findMany({
