@@ -566,4 +566,146 @@ export class GoogleService {
 
     return data.data;
   }
+
+  async forwardMail(
+    accessToken: string,
+    idToken: string,
+    refreshToken: string,
+    senderEmailAddress: string,
+    forwardMailGmailId: string,
+  ) {
+    this.googleClient.setCredentials({
+      access_token: accessToken,
+      id_token: idToken,
+      refresh_token: refreshToken,
+    });
+    const gmail = google.gmail({
+      key: process.env.GMAIL_API_KEY,
+      auth: this.googleClient,
+      version: 'v1',
+    });
+
+    const response = await gmail.users.messages.get({
+      userId: 'me',
+      id: forwardMailGmailId,
+      format: 'raw',
+    });
+
+    if (!response.data.raw) {
+      throw new BadRequestException('no email found with this id');
+    }
+
+    const rawEmail = Buffer.from(response.data.raw, 'base64url').toString(
+      'utf-8',
+    ); // decoding raw email
+
+    // use mailParser to safely change headers in production ready app
+    const forwardedEmail = rawEmail
+      .replace(/^To: .*/m, `To: ${senderEmailAddress}`)
+      .replace(/^Cc: .*/m, '')
+      .replace(/^Bcc: .*/m, '');
+
+    const encodedEmail = Buffer.from(forwardedEmail).toString('base64url');
+
+    // sending email to user
+    await gmail.users.messages.send({
+      userId: 'me',
+      requestBody: {
+        raw: encodedEmail,
+      },
+    });
+  }
+
+  async replyMail(
+    accessToken: string,
+    idToken: string,
+    refreshToken: string,
+    senderEmailAddress: string,
+    messageId: string,
+    subject: string,
+    body: string,
+  ) {
+    this.googleClient.setCredentials({
+      access_token: accessToken,
+      id_token: idToken,
+      refresh_token: refreshToken,
+    });
+    const gmail = google.gmail({
+      key: process.env.GMAIL_API_KEY,
+      auth: this.googleClient,
+      version: 'v1',
+    });
+
+    const emailLines = [
+      `To: ${senderEmailAddress}`,
+      `Subject: ${subject}`,
+      `In-Reply-To: ${messageId}`, // e.g., <original-id@mail.com>
+      `References: ${messageId}`,
+      'Content-Type: text/html; charset=utf-8',
+      'MIME-Version: 1.0',
+      '',
+      `${body}`,
+    ];
+    const emailString = emailLines.join('\r\n');
+
+    // 2. Encode to Base64url format
+    const encodedEmail = Buffer.from(emailString)
+      .toString('base64')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
+
+    // sending email to user
+    await gmail.users.messages.send({
+      userId: 'me',
+      requestBody: {
+        raw: encodedEmail,
+      },
+    });
+  }
+
+  async sendMail(
+    accessToken: string,
+    idToken: string,
+    refreshToken: string,
+    senderEmailAddress: string,
+    subject: string,
+    body: string,
+  ) {
+    this.googleClient.setCredentials({
+      access_token: accessToken,
+      id_token: idToken,
+      refresh_token: refreshToken,
+    });
+    const gmail = google.gmail({
+      key: process.env.GMAIL_API_KEY,
+      auth: this.googleClient,
+      version: 'v1',
+    });
+
+    const emailLines = [
+      `To: ${senderEmailAddress}`,
+      `Subject: ${subject}`,
+      `Content-Type: text/html; charset=utf-8`,
+      `MIME-Version: 1.0`,
+      ``,
+      `${body}`,
+    ];
+    const emailString = emailLines.join('\r\n');
+
+    // 2. Encode to Base64url format
+    const encodedEmail = Buffer.from(emailString)
+      .toString('base64')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
+
+    // sending email to user
+    await gmail.users.messages.send({
+      userId: 'me',
+      requestBody: {
+        raw: encodedEmail,
+      },
+    });
+  }
 }

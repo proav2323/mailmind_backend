@@ -119,4 +119,55 @@ export class EmailsController {
   ) {
     return await this.emailService.toggleStar(id, req, headers);
   }
+
+  @Put('forward')
+  async forwardMail(
+    @Req() req: Request,
+    @Headers() headers: Record<string, string>,
+    @Body() body: { senderEmailAddress: string; forwardEmailGmailId: string },
+  ) {
+    return await this.emailService.forwardMail(
+      req,
+      headers,
+      body.senderEmailAddress,
+      body.forwardEmailGmailId,
+    );
+  }
+
+  @Post('send')
+  async sendMail(
+    @Req() req: Request,
+    @Headers() headers: Record<string, string>,
+    @Body() body: { senderEmailAddress: string; subject: string; body: string },
+  ) {
+    return await this.emailService.sendMail(
+      req,
+      headers,
+      body.senderEmailAddress,
+      body.subject,
+      body.body,
+    );
+  }
+
+  @Post('reply')
+  async replyMail(
+    @Req() req: Request,
+    @Headers() headers: Record<string, string>,
+    @Body()
+    body: {
+      senderEmailAddress: string;
+      subject: string;
+      body: string;
+      messageId: string;
+    },
+  ) {
+    return await this.emailService.replyMail(
+      req,
+      headers,
+      body.senderEmailAddress,
+      body.subject,
+      body.body,
+      body.messageId,
+    );
+  }
 }
