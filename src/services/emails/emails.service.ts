@@ -1571,4 +1571,115 @@ export class EmailsService {
 
     return { success: true, code: 200 };
   }
+
+  async getDashboardData(req: Request, headers: Record<string, string>) {
+    const token = (req as Request & { cookies?: Record<string, string> })
+      .cookies?.token;
+    let secondToken: string | undefined = undefined;
+    if (headers.authorization !== null && headers.authorization !== undefined) {
+      secondToken = headers.authorization.split(' ')[1];
+    }
+
+    if (!token && !secondToken) {
+      console.log('no token');
+      throw new BadRequestException('token not valid');
+    }
+
+    const decoded = this.JWT.verify<{
+      email: string;
+      scopes: string[];
+      scope: string;
+    }>(token !== undefined && token !== null ? token : secondToken!, {
+      secret: process.env.JWT_SECRET,
+    });
+
+    const user = await this.prisma.uSER.findUnique({
+      where: { email: decoded.email },
+      select: { email: true, id: true },
+    });
+
+    if (!user) {
+      throw new BadRequestException('user not found');
+    }
+    const today = new Date();
+    const day = today.getDay(); // 0 for Sunday, 1 for Monday, etc.
+
+    // Calculate distance to Monday (if Sunday (0), distance is -6, otherwise 1 - day)
+    const diffToMonday = day === 0 ? -6 : 1 - day;
+
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + diffToMonday);
+    monday.setHours(0, 0, 0, 0); // Optional: reset time to start of day
+
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    sunday.setHours(23, 59, 59, 999); // Optional: set to end of day
+
+    const tomorrow: Date = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    const emailsDueThisWeek = await this.prisma.eMAILS.findMany({
+      where: {
+        deadline: {
+          lte: monday,
+          gte: sunday,
+        },
+        userId: user.id,
+      },
+      select: {
+        id: true,
+        subject: true,
+        priority: true,
+        deadline: true,
+      },
+      orderBy: {
+        deadline: 'desc',
+      },
+    });
+
+    const highPriorityEmails = await this.prisma.eMAILS.findMany({
+      where: {
+        OR: [{ priority: 'High' }, { priority: 'Critical' }],
+        userId: user.id,
+      },
+      select: {
+        id: true,
+        subject: true,
+        priority: true,
+        deadline: true,
+      },
+      orderBy: {
+        deadline: 'desc',
+      },
+    });
+
+    const todaysEmail = await this.prisma.eMAILS.findMany({
+      where: {
+        receivedAt: {
+          lte: today,
+          gte: tomorrow,
+        },
+        userId: user.id,
+      },
+      select: {
+        id: true,
+        GmailSubject: true,
+        subject: true,
+        summary: true,
+        category: true,
+        sender: true,
+        isStared: true,
+        priority: true,
+        aiPriority: true,
+        receivedAt: true,
+        isRead: true,
+        gmailId: true,
+      },
+      orderBy: {
+        receivedAt: 'desc',
+      },
+    });
+
+    return { todaysEmail, emailsDueThisWeek, highPriorityEmails };
+  }
 }

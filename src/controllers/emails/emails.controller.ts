@@ -170,4 +170,12 @@ export class EmailsController {
       body.messageId,
     );
   }
+
+  @Get('dashboard')
+  async getDashboardData(
+    @Req() req: Request,
+    @Headers() headers: Record<string, string>,
+  ) {
+    return await this.emailService.getDashboardData(req, headers);
+  }
 }
