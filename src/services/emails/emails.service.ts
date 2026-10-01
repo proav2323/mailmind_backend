@@ -1642,6 +1642,10 @@ export class EmailsService {
       where: {
         OR: [{ priority: 'High' }, { priority: 'Critical' }],
         userId: user.id,
+        receivedAt: {
+          lte: tomorrow,
+          gte: today,
+        },
       },
       select: {
         id: true,
