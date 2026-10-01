@@ -1616,7 +1616,8 @@ export class EmailsService {
     sunday.setHours(23, 59, 59, 999); // Optional: set to end of day
 
     const tomorrow: Date = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
+    tomorrow.setHours(23, 59, 59, 599); // Optional: reset time to start of day
+    today.setHours(0, 0, 0, 0); // Optional: set to end of day
 
     const emailsDueThisWeek = await this.prisma.eMAILS.findMany({
       where: {
@@ -1679,7 +1680,11 @@ export class EmailsService {
         receivedAt: 'desc',
       },
     });
-
+    console.log({
+      todays: todaysEmail.length,
+      due: emailsDueThisWeek.length,
+      highPriorityEmails: highPriorityEmails.length,
+    });
     return { todaysEmail, emailsDueThisWeek, highPriorityEmails };
   }
 }
