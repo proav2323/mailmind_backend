@@ -1622,8 +1622,8 @@ export class EmailsService {
     const emailsDueThisWeek = await this.prisma.eMAILS.findMany({
       where: {
         deadline: {
-          lte: monday,
-          gte: sunday,
+          lte: sunday,
+          gte: monday,
         },
         userId: user.id,
       },
@@ -1657,8 +1657,8 @@ export class EmailsService {
     const todaysEmail = await this.prisma.eMAILS.findMany({
       where: {
         receivedAt: {
-          lte: today,
-          gte: tomorrow,
+          lte: tomorrow,
+          gte: today,
         },
         userId: user.id,
       },
@@ -1679,11 +1679,6 @@ export class EmailsService {
       orderBy: {
         receivedAt: 'desc',
       },
-    });
-    console.log({
-      todays: todaysEmail.length,
-      due: emailsDueThisWeek.length,
-      highPriorityEmails: highPriorityEmails.length,
     });
     return { todaysEmail, emailsDueThisWeek, highPriorityEmails };
   }
