@@ -1602,13 +1602,13 @@ export class EmailsService {
       throw new BadRequestException('user not found');
     }
     const today = new Date();
-
-    const end = new Date(today.getDate() + 7);
+    today.setHours(0, 0, 0, 0); // Optional: set to end of day
+    const end = new Date();
+    end.setDate(today.getDate() + 7);
     end.setHours(23, 59, 59, 999); // Optional: set to end of day
 
     const tomorrow: Date = new Date(today);
     tomorrow.setHours(23, 59, 59, 599); // Optional: reset time to start of day
-    today.setHours(0, 0, 0, 0); // Optional: set to end of day
 
     const emailsDueThisWeek = await this.prisma.eMAILS.findMany({
       where: {
