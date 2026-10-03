@@ -1602,18 +1602,9 @@ export class EmailsService {
       throw new BadRequestException('user not found');
     }
     const today = new Date();
-    const day = today.getDay(); // 0 for Sunday, 1 for Monday, etc.
 
-    // Calculate distance to Monday (if Sunday (0), distance is -6, otherwise 1 - day)
-    const diffToMonday = day === 0 ? -6 : 1 - day;
-
-    const monday = new Date(today);
-    monday.setDate(today.getDate() + diffToMonday);
-    monday.setHours(0, 0, 0, 0); // Optional: reset time to start of day
-
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-    sunday.setHours(23, 59, 59, 999); // Optional: set to end of day
+    const end = new Date(today.getDate() + 7);
+    end.setHours(23, 59, 59, 999); // Optional: set to end of day
 
     const tomorrow: Date = new Date(today);
     tomorrow.setHours(23, 59, 59, 599); // Optional: reset time to start of day
@@ -1622,8 +1613,8 @@ export class EmailsService {
     const emailsDueThisWeek = await this.prisma.eMAILS.findMany({
       where: {
         deadline: {
-          lte: sunday,
-          gte: monday,
+          lte: end, // End of this week
+          gte: today, // Start of today
         },
         userId: user.id,
       },
