@@ -29,6 +29,7 @@ model USER {
   fids Json[] @default([])
   emails        EMAILS[]
   notifications notifications[]
+  addEmailChats newEmailChats[]
 }
 
 
@@ -86,5 +87,14 @@ model CATEGORIES {
   id String @id
   name String
   userId String
+  user USER @relation(fields: [userId], references: [id])
+}
+
+model newEmailChats {
+  id String @id
+  userId String
+  messages Json[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
   user USER @relation(fields: [userId], references: [id])
 }
