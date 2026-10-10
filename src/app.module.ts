@@ -22,6 +22,8 @@ import { NotificationsController } from './controllers/notifications/notificatio
 import { EmailPubSubService } from './services/email-pub-sub/email-pub-sub.service';
 import { CategoriesService } from './services/categories/categories.service';
 import { CategoriesController } from './controllers/categories/categories.controller';
+import { AgentService } from './services/agent/agent.service';
+import { AgentController } from './controllers/agent/agent.controller';
 
 @Module({
   imports: [
@@ -39,6 +41,7 @@ import { CategoriesController } from './controllers/categories/categories.contro
     CronController,
     NotificationsController,
     CategoriesController,
+    AgentController,
   ],
   providers: [
     AppService,
@@ -55,6 +58,7 @@ import { CategoriesController } from './controllers/categories/categories.contro
     NotificationsService,
     EmailPubSubService,
     CategoriesService,
+    AgentService,
   ],
 })
 export class AppModule {}

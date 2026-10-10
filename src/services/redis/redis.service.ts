@@ -6,8 +6,12 @@ import { Redis } from '@upstash/redis';
 export class RedisService {
   constructor(@Inject(UPSTASH_REDIS_CLIENT) private redis: Redis) {}
 
-  async save(value: string, key: string, expireIn: number) {
-    await this.redis.set(key, value, { ex: expireIn });
+  async save(value: string, key: string, expireIn?: number) {
+    if (expireIn) {
+      await this.redis.set(key, value, { ex: expireIn });
+    } else {
+      await this.redis.set(key, value);
+    }
   }
 
   async delete(key: string) {
