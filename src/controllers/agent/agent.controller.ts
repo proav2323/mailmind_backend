@@ -1,16 +1,24 @@
-import { Body, Controller, Headers, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Post, Req } from '@nestjs/common';
 import { AgentService } from '../../services/agent/agent.service';
 
 @Controller('agent')
 export class AgentController {
   constructor(private agentService: AgentService) {}
 
-  @Post('/chat')
+  @Post('chat')
   async createChat(
     @Req() req: Request,
     @Headers() headers: Record<string, string>,
-    @Body() data: { query: string },
+    @Body() data: { query: string; id: string | undefined },
   ) {
-    return await this.agentService.Chat(req, headers, data.query);
+    return await this.agentService.Chat(req, headers, data.query, data.id);
+  }
+
+  @Get('messages')
+  async getMessages(
+    @Req() req: Request,
+    @Headers() headers: Record<string, string>,
+  ) {
+    return await this.agentService.getUserMessages(req, headers);
   }
 }
