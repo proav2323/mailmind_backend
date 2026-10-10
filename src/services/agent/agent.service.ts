@@ -37,17 +37,18 @@ export class AgentService {
 
     const user = await this.prisma.uSER.findUnique({
       where: { email: decoded.email },
-      select: { email: true, refreshToken: true },
+      select: { email: true, id: true },
     });
 
     if (!user) {
       throw new BadRequestException('user not found');
     }
 
-    const data = await this.prisma.uSER.update({
-      where: { email: user.email },
+    const data = await this.prisma.newEmailChats.create({
       data: {
-        addEmailChats: { create: { id: generateId(8), messages: [] } },
+        id: generateId(8),
+        messages: [],
+        userId: user.id,
       },
       select: {
         id: true,
