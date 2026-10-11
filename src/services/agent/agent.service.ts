@@ -150,10 +150,11 @@ export class AgentService {
     );
 
     const messagesStr = await this.redis.get(emailDraft.id);
-    const messages = JSON.parse(messagesStr);
+    // const messages = JSON.parse(messagesStr);
+    console.log(typeof messagesStr);
     await this.prisma.newEmailChats.update({
       where: { id: emailDraft.id },
-      data: { messages: messages },
+      data: { messages: messagesStr },
     });
 
     return { success: 'true' };
