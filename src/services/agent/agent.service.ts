@@ -107,15 +107,13 @@ export class AgentService {
       throw new BadRequestException('user not found');
     }
 
-    let emailDraft: {
+    const emailDraft: {
       messages: any[];
       id: string;
       created_at: Date;
       updated_at: Date;
       userId: string;
-    } | null = null;
-
-    emailDraft = await this.createChat(req, headers, emailId);
+    } | null = await this.createChat(req, headers, emailId);
 
     if (!emailDraft) {
       throw new NotFoundError('email not found from this id');
@@ -154,7 +152,11 @@ export class AgentService {
     return { success: 'true' };
   }
 
-  async getUserMessages(req: Request, headers: Record<string, string>) {
+  async getUserMessages(
+    req: Request,
+    headers: Record<string, string>,
+    id: string,
+  ) {
     const token = (req as Request & { cookies?: Record<string, string> })
       .cookies?.token;
     let secondToken: string | undefined = undefined;
@@ -184,8 +186,8 @@ export class AgentService {
       throw new BadRequestException('user not found');
     }
 
-    return await this.prisma.newEmailChats.findMany({
-      where: { userId: user.id },
+    return await this.prisma.newEmailChats.findUnique({
+      where: { userId: user.id, id: id },
       select: {
         id: true,
         messages: true,
