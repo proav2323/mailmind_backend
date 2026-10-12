@@ -9,7 +9,7 @@ export class AgentController {
   async createChat(
     @Req() req: Request,
     @Headers() headers: Record<string, string>,
-    @Body() data: { query: string; id: string | undefined },
+    @Body() data: { query: string; id: string },
   ) {
     return await this.agentService.Chat(req, headers, data.query, data.id);
   }

@@ -5,6 +5,7 @@ import { generateId } from '../../utils/generateId';
 import { firstValueFrom, NotFoundError } from 'rxjs';
 import { RedisService } from '../redis/redis.service';
 import { HttpService } from '@nestjs/axios';
+import { JsonValue } from '@prisma/client/runtime/client';
 
 @Injectable()
 export class AgentService {
@@ -14,7 +15,7 @@ export class AgentService {
     private redis: RedisService,
     private http: HttpService,
   ) {}
-  async createChat(req: Request, headers: Record<string, string>) {
+  async createChat(req: Request, headers: Record<string, string>, id: string) {
     const token = (req as Request & { cookies?: Record<string, string> })
       .cookies?.token;
     let secondToken: string | undefined = undefined;
@@ -44,9 +45,17 @@ export class AgentService {
       throw new BadRequestException('user not found');
     }
 
+    const chat = await this.prisma.newEmailChats.findUnique({
+      where: { userId: user.id, id: id },
+    });
+
+    if (chat) {
+      return chat;
+    }
+
     const data = await this.prisma.newEmailChats.create({
       data: {
-        id: generateId(8),
+        id: id,
         messages: [],
         userId: user.id,
       },
@@ -67,7 +76,7 @@ export class AgentService {
     req: Request,
     headers: Record<string, string>,
     query: string,
-    emailId?: string,
+    emailId: string,
   ) {
     const token = (req as Request & { cookies?: Record<string, string> })
       .cookies?.token;
@@ -106,21 +115,7 @@ export class AgentService {
       userId: string;
     } | null = null;
 
-    if (emailId) {
-      emailDraft = await this.prisma.newEmailChats.findUnique({
-        where: { id: emailId },
-        select: {
-          id: true,
-          created_at: true,
-          messages: true,
-          updated_at: true,
-          userId: true,
-          user: false,
-        },
-      });
-    } else {
-      emailDraft = await this.createChat(req, headers);
-    }
+    emailDraft = await this.createChat(req, headers, emailId);
 
     if (!emailDraft) {
       throw new NotFoundError('email not found from this id');
